@@ -1349,6 +1349,7 @@
         }
 
         function getElementColor(el) {
+            if (el && el.startsWith('#')) return el;
             switch (el) {
                 case 'fire': return '#D32F2F';
                 case 'water': return '#1976D2';
@@ -1431,7 +1432,7 @@
                              onclick="selectMockSoulmate('${char.id}', '${char.name}', '${elColor}', '${char.element}', ${JSON.stringify(char.preferredWeapons).replace(/"/g, '&quot;')}, '${char.iconFile || ''}')">
                             <div class="db-icon">
                                 ${iconPath 
-                                    ? `<img src="${iconPath}" alt="${char.name}" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">`
+                                    ? `<img src="${iconPath}" alt="${char.name}" onerror="handleImageError(this, '${char.name.replace(/'/g, "\\'")}', '${char.element}', 'Soulmates')" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">`
                                     : `<div class="token-icon" style="background-color: ${elColor};">${char.name.substring(0, 2).toUpperCase()}</div>`
                                 }
                             </div>
@@ -1448,11 +1449,12 @@
                     if (matchesSearch && matchesElement) {
                         const isDisabled = assignedIds.includes(sac.id);
                         const elColor = getElementColor(sac.element);
-                        const iconPath = sac.iconFile && sac.iconFile !== 'N/A' ? `Icons/sacreds/${sac.iconFile}` : '';
+                        const iconPath = sac.iconFile && sac.iconFile !== 'N/A' ? `Icons/Sacreds/${sac.iconFile}` : '';
                         const dragData = JSON.stringify({
                             id: sac.id,
                             name: sac.name,
                             color: elColor,
+                            element: sac.element,
                             iconFile: sac.iconFile || '',
                             selectionType: 'sacred'
                         }).replace(/"/g, '&quot;');
@@ -1461,10 +1463,10 @@
                         <div class="db-item ${isDisabled ? 'disabled' : ''}" 
                              draggable="true" 
                              ondragstart="event.dataTransfer.setData('text/plain', '${dragData}'); event.dataTransfer.effectAllowed = 'copy';"
-                             onclick="selectMockSacred('${sac.id}', '${sac.name}', '${elColor}', '${sac.iconFile || ''}')">
+                             onclick="selectMockSacred('${sac.id}', '${sac.name}', '${elColor}', '${sac.element}', '${sac.iconFile || ''}')">
                             <div class="db-icon">
                                 ${iconPath 
-                                    ? `<img src="${iconPath}" alt="${sac.name}" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">`
+                                    ? `<img src="${iconPath}" alt="${sac.name}" onerror="handleImageError(this, '${sac.name.replace(/'/g, "\\'")}', '${sac.element}', 'Sacreds')" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">`
                                     : `<div class="token-icon" style="background-color: ${elColor};">${sac.name.substring(0, 2).toUpperCase()}</div>`
                                 }
                             </div>
@@ -1562,7 +1564,7 @@
                 const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/Soulmates/${iconFile}` : '';
                 activeTargetSlot.innerHTML = `
                     ${iconPath 
-                        ? `<img src="${iconPath}" alt="${name}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
+                        ? `<img src="${iconPath}" alt="${name}" onerror="handleImageError(this, '${name.replace(/'/g, "\\'")}', '${element}', 'Soulmates')" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
                         : `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`
                     }
                     <button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>
@@ -1611,13 +1613,13 @@
             }
         }
 
-        function selectMockSacred(id, name, color, iconFile) {
+        function selectMockSacred(id, name, color, element, iconFile) {
             if (activeTargetSlot) {
                 activeTargetSlot.dataset.selectedId = id;
-                const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/sacreds/${iconFile}` : '';
+                const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/Sacreds/${iconFile}` : '';
                 activeTargetSlot.innerHTML = `
                     ${iconPath 
-                        ? `<img src="${iconPath}" alt="${name}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
+                        ? `<img src="${iconPath}" alt="${name}" onerror="handleImageError(this, '${name.replace(/'/g, "\\'")}', '${element}', 'Sacreds')" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
                         : `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`
                     }
                     <button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>
@@ -1626,7 +1628,7 @@
                 const sacCard = activeTargetSlot.closest('.sac-card');
                 if (sacCard) {
                     const sacIndex = Array.from(sacCard.parentNode.children).indexOf(sacCard);
-                    selectedSacreds[activeVersionNum][sacIndex] = { id, name, color, iconFile };
+                    selectedSacreds[activeVersionNum][sacIndex] = { id, name, color, element, iconFile };
                 }
                 populateMockDatabase(activeVersionNum);
             }
@@ -1708,13 +1710,48 @@
             populateMockDatabase(versionNum);
         }
 
+        function handleImageError(img, name, element, folder) {
+            if (!img.dataset.tryCount) {
+                img.dataset.tryCount = 1;
+                // Try 1: Exact capitalized name casing with underscores
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_');
+                img.src = `Icons/${folder}/${cleanName}.png`;
+            } else if (img.dataset.tryCount == 1) {
+                img.dataset.tryCount = 2;
+                // Try 2: Element prefix + exact name casing
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_');
+                img.src = `Icons/${folder}/${element}_${cleanName}.png`;
+            } else if (img.dataset.tryCount == 2) {
+                img.dataset.tryCount = 3;
+                // Try 3: Fully lowercase name
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_').toLowerCase();
+                img.src = `Icons/${folder}/${cleanName}.png`;
+            } else if (img.dataset.tryCount == 3) {
+                img.dataset.tryCount = 4;
+                // Try 4: Element prefix + lowercase name
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_').toLowerCase();
+                img.src = `Icons/${folder}/${element}_${cleanName}.png`;
+            } else {
+                // All failed - replace with text token
+                const parent = img.parentNode;
+                if (parent) {
+                    const color = getElementColor(element);
+                    const isSlot = parent.classList.contains('slot') || parent.parentNode.classList.contains('slot');
+                    parent.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`;
+                    if (isSlot) {
+                        parent.innerHTML += `<button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>`;
+                    }
+                }
+            }
+        }
+
         function updateTimelineHeader(versionNum, smIndex, color, name, iconFile) {
             const timelineContainerId = versionNum === 2 ? 'timelineContainer2' : 'timelineContainer1';
             const headerIcon = document.querySelector(`#${timelineContainerId} [data-sm-col="${smIndex}"]`);
             if (headerIcon) {
                 const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/Soulmates/${iconFile}` : '';
                 headerIcon.innerHTML = iconPath 
-                    ? `<img src="${iconPath}" alt="${name}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
+                    ? `<img src="${iconPath}" alt="${name}" onerror="handleImageError(this, '${name.replace(/'/g, "\\'")}', '${color}', 'Soulmates')" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
                     : `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`;
             }
         }
@@ -1997,7 +2034,7 @@
                         } else if (slotType === 'weapon') {
                             selectMockWeapon(data.id, data.name, data.color);
                         } else if (slotType === 'sacred') {
-                            selectMockSacred(data.id, data.name, data.color, data.iconFile);
+                            selectMockSacred(data.id, data.name, data.color, data.element, data.iconFile);
                         }
                     }
                 } catch (err) {
