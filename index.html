@@ -6,63 +6,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raid Combat Planner</title>
     <style>
-        /* High-Density Theme */
+        /* High-Density Theme & Vertical Height Optimization with Left Sidebar */
         body,
         html {
             margin: 0;
             padding: 0;
             height: 100vh;
+            width: 100vw;
             background-color: #121212;
             color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             overflow: hidden;
-        }
-
-        /* --- HEADER, TOGGLE & ACTIONS --- */
-        .header {
-            background: #1a1a1a;
-            padding: 10px 15px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-            height: 41px;
             box-sizing: border-box;
-            z-index: 100;
         }
 
-        .header-left {
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        /* --- VERTICAL LEFT SIDEBAR CONTROLS --- */
+        .sidebar {
+            background: #1a1a1a;
+            width: 200px;
+            padding: 12px;
+            border-right: 1px solid #333;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 15px;
+            flex-shrink: 0;
+            z-index: 100;
+            height: 100vh;
         }
 
-        .header h1 {
+        .sidebar h1 {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
         }
 
-        .header-actions {
+        .sidebar-actions {
             display: flex;
-            gap: 8px;
-            align-items: center;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .btn-action {
             background: #333;
             color: #ccc;
             border: 1px solid #444;
-            padding: 3px 8px;
+            padding: 6px 10px;
             border-radius: 3px;
             cursor: pointer;
             font-size: 11px;
             font-weight: bold;
+            text-align: center;
         }
 
         .btn-action:hover {
@@ -73,12 +79,16 @@
 
         .toggle-container {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
             color: #aaa;
             text-transform: uppercase;
             font-weight: bold;
+            align-items: center;
+            border-top: 1px solid #333;
+            padding-top: 12px;
+            margin-top: auto;
         }
 
         .switch {
@@ -129,22 +139,32 @@
             background-color: #4CAF50;
         }
 
-        /* --- STABLE ABSOLUTE LAYOUT CONTAINERS --- */
+        /* --- STABLE FLEX WORKSPACE CONTAINER --- */
+        .workspace-container {
+            flex-grow: 1;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: #121212;
+            display: flex;
+            flex-direction: column;
+        }
+
         .ui-version {
             position: absolute;
-            top: 41px;
+            top: 0;
             left: 0;
             width: 100%;
-            height: calc(100vh - 41px);
+            height: 100%;
             display: none;
             background: #121212;
             overflow: hidden;
-            box-sizing: border-box;
         }
 
         .ui-version.active {
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
         }
 
         /* --- VERSION 1 GRID (With Buffs) --- */
@@ -152,12 +172,11 @@
             display: grid;
             grid-template-columns: 240px 90px 1fr;
             grid-template-rows: max-content 1fr;
-            gap: 12px;
-            padding: 12px;
+            gap: 8px;
+            padding: 8px;
             flex-grow: 1;
             overflow: hidden;
             height: 100%;
-            box-sizing: border-box;
         }
 
         .v1-sm {
@@ -192,12 +211,11 @@
             display: grid;
             grid-template-columns: 280px 100px 1fr;
             grid-template-rows: 1fr;
-            gap: 12px;
-            padding: 12px;
+            gap: 8px;
+            padding: 8px;
             flex-grow: 1;
             overflow: hidden;
             height: 100%;
-            box-sizing: border-box;
         }
 
         .v2-sm {
@@ -234,9 +252,9 @@
 
         .panel-header {
             background: #252525;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid #333;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: #aaa;
             text-transform: uppercase;
@@ -244,8 +262,7 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            height: 33px;
-            box-sizing: border-box;
+            height: 28px;
         }
 
         .token-icon {
@@ -264,10 +281,10 @@
 
         /* --- ROSTER SHEETS --- */
         .roster-col {
-            padding: 8px;
+            padding: 6px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             overflow-y: auto;
         }
 
@@ -275,22 +292,21 @@
         .sac-card {
             display: flex;
             align-items: center;
-            box-sizing: border-box;
         }
 
         .sm-card {
             gap: 6px;
-            height: 46px;
+            height: 44px;
         }
 
         .sac-card {
             justify-content: center;
-            height: 46px;
+            height: 44px;
         }
 
         .v2-sm .sm-card,
         .v2-sac .sac-card {
-            height: 56px;
+            height: 52px;
         }
 
         .slot {
@@ -305,7 +321,6 @@
             font-size: 10px;
             text-align: center;
             overflow: hidden;
-            box-sizing: border-box;
             position: relative;
         }
 
@@ -316,14 +331,14 @@
         }
 
         .v1-sm .portrait {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             flex-shrink: 0;
         }
 
         .v1-sac .sac-portrait {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             flex-shrink: 0;
         }
 
@@ -335,37 +350,37 @@
         }
 
         .v1-sm .wep-slot {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
         }
 
         .v2-sm .portrait {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             flex-shrink: 0;
         }
 
         .v2-sac .sac-portrait {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             flex-shrink: 0;
         }
 
         .v2-sm .wep-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 4px;
             flex-grow: 1;
         }
 
         .v2-sm .wep-slot {
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
         }
 
         /* Buffs Menu Specifics */
         .search-bar-container {
-            padding: 10px;
+            padding: 8px;
             border-bottom: 1px solid #333;
             background: #1a1a1a;
             flex-shrink: 0;
@@ -373,13 +388,12 @@
 
         .search-input {
             width: 100%;
-            box-sizing: border-box;
             background: #111;
             border: 1px solid #444;
             color: #fff;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .search-input:focus {
@@ -388,24 +402,24 @@
         }
 
         .buff-palette {
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             overflow-y: auto;
             align-content: flex-start;
         }
 
         .buff-slot {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             background: #252525;
             border: 1px dashed #555;
             border-radius: 4px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #777;
             cursor: grab;
             flex-shrink: 0;
@@ -420,29 +434,29 @@
 
         /* Selection Panel & Filter Elements */
         .filter-section {
-            padding: 10px 12px;
+            padding: 8px 10px;
             background: #1a1a1a;
             border-bottom: 1px solid #333;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
 
         .filter-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         .filter-row.search-row {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .filter-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
         }
 
@@ -460,9 +474,9 @@
             background: #222;
             border: 1px solid #444;
             color: #888;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             user-select: none;
             transition: 0.2s;
         }
@@ -474,10 +488,10 @@
         }
 
         .database-grid {
-            padding: 12px;
+            padding: 10px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 8px;
             overflow-y: auto;
             align-content: flex-start;
             flex-grow: 1;
@@ -490,7 +504,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px;
+            padding: 4px;
             cursor: pointer;
         }
 
@@ -506,11 +520,11 @@
         }
 
         .db-icon {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             background: #111;
             border-radius: 4px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -518,7 +532,7 @@
         }
 
         .db-name {
-            font-size: 10px;
+            font-size: 9px;
             color: #ccc;
             text-align: center;
             white-space: nowrap;
@@ -531,7 +545,7 @@
             background: transparent;
             color: #aaa;
             border: none;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
         }
 
@@ -544,10 +558,10 @@
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 5px 12px;
+            padding: 3px 10px;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
         }
 
@@ -563,7 +577,6 @@
             position: relative;
         }
 
-        /* Strict Grid Layouts */
         .t1-grid {
             display: grid;
             grid-template-columns: 36px 46px 46px 46px 46px 46px 46px minmax(130px, 1fr) minmax(130px, 1fr) 36px;
@@ -587,14 +600,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 50px;
+            height: 56px;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
         .v1-timeline .header-icon-slot {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             background: #252525;
             border: 1px solid #444;
             border-radius: 4px;
@@ -608,8 +620,8 @@
         }
 
         .v2-timeline .header-icon-slot {
-            width: 44px;
-            height: 44px;
+            width: 100%;
+            height: 100%;
             background: #252525;
             border: 1px solid #444;
             border-radius: 4px;
@@ -618,44 +630,43 @@
             align-items: center;
             color: #666;
             font-size: 10px;
-            flex-shrink: 0;
             box-sizing: border-box;
         }
 
         .v1-timeline .t-cell {
-            height: 46px;
+            height: 44px;
+            padding: 3px;
+            border-bottom: 1px solid #222;
+            border-right: 1px solid #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .v2-timeline .t-cell {
+            height: 56px;
             padding: 4px;
             border-bottom: 1px solid #222;
             border-right: 1px solid #222;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box;
             overflow: hidden;
-        }
-
-        .v2-timeline .t-cell {
-            height: 56px;
-            padding: 6px;
-            border-bottom: 1px solid #222;
-            border-right: 1px solid #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
         .turn-num {
             background: #151515;
             font-weight: bold;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .v1-timeline .action-slot {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             background: #252525;
             border-radius: 4px;
             border: 1px dashed #555;
@@ -674,8 +685,8 @@
         }
 
         .v2-timeline .action-slot {
-            width: 44px;
-            height: 44px;
+            width: 100%;
+            height: 100%;
             background: #252525;
             border-radius: 4px;
             border: 1px dashed #555;
@@ -695,23 +706,23 @@
 
         .drop-zone {
             width: 100%;
-            height: 34px;
+            height: 32px;
             background: #1a1a1a;
             border: 1px dashed #444;
             border-radius: 3px;
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
-            padding: 4px;
-            box-sizing: border-box;
+            gap: 3px;
+            padding: 3px;
             overflow: hidden;
+            box-sizing: border-box;
         }
 
         .btn-delete-row {
             background: transparent;
             border: none;
             color: #ff4d4d;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -728,7 +739,7 @@
             border-radius: 2px;
         }
 
-        /* --- HORIZONTAL SQUARED ACTION POPUP MENU --- */
+        /* --- ACTION POPUP MENU --- */
         .action-popup {
             position: absolute;
             background: #1e1e1e;
@@ -743,8 +754,8 @@
         }
 
         .action-popup-item {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             background: #252525;
             border: 1px solid #444;
             border-radius: 4px;
@@ -752,7 +763,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box;
             transition: 0.15s;
         }
 
@@ -764,7 +774,7 @@
         .action-popup-item .token-icon {
             width: 100%;
             height: 100%;
-            font-size: 9px;
+            font-size: 8px;
         }
 
         /* --- CUSTOM MODAL DIALOG --- */
@@ -785,17 +795,17 @@
             background: #1e1e1e;
             border: 1px solid #444;
             border-radius: 6px;
-            width: 320px;
-            padding: 20px;
+            width: 300px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
         }
 
         .modal-box h3 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             color: #fff;
             text-transform: uppercase;
         }
@@ -804,11 +814,10 @@
             background: #111;
             border: 1px solid #444;
             color: #fff;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
             width: 100%;
-            box-sizing: border-box;
         }
 
         .modal-input:focus {
@@ -819,13 +828,13 @@
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 6px;
         }
 
         .modal-btn {
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 3px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             cursor: pointer;
             border: none;
@@ -854,18 +863,17 @@
 
 <body>
 
-    <div class="header">
-        <div class="header-left">
-            <h1>Raid Tool</h1>
-            <div class="header-actions">
-                <button class="btn-action" onclick="openSaveModal()">Save JSON File</button>
-                <button class="btn-action" onclick="document.getElementById('fileInput').click()">Load JSON
-                    File</button>
-                <input type="file" id="fileInput" style="display: none;" accept=".json" onchange="loadPlanJSON(event)">
-            </div>
+    <!-- VERTICAL LEFT SIDEBAR CONTROLS -->
+    <div class="sidebar">
+        <h1>Raid Tool</h1>
+        <div class="sidebar-actions">
+            <button class="btn-action" onclick="addTurnActive()">+ Add Turn</button>
+            <button class="btn-action" onclick="openSaveModal()">Save JSON</button>
+            <button class="btn-action" onclick="document.getElementById('fileInput').click()">Load JSON</button>
+            <input type="file" id="fileInput" style="display: none;" accept=".json" onchange="loadPlanJSON(event)">
         </div>
         <div class="toggle-container">
-            <span>Combat Planner (No Buffs)</span>
+            <span>Planner (No Buffs)</span>
             <label class="switch">
                 <input type="checkbox" id="uiToggle" onchange="switchUI()">
                 <span class="slider"></span>
@@ -874,380 +882,387 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- VERSION 1: WITH BUFFS/DEBUFFS MENU        -->
-    <!-- ========================================== -->
-    <div class="ui-version" id="version1">
-        <div class="workspace-v1">
+    <div class="workspace-container">
+        <!-- ========================================== -->
+        <!-- VERSION 1: WITH BUFFS/DEBUFFS MENU        -->
+        <!-- ========================================== -->
+        <div class="ui-version" id="version1">
+            <div class="workspace-v1">
+                <div class="panel v1-sm">
+                    <div class="panel-header">Soulmates</div>
+                    <div class="roster-col" id="rosterCol1">
+                        <div class="sm-card" data-index="0">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="1">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="2">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="3">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="4">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Soulmates -->
-            <div class="panel v1-sm">
-                <div class="panel-header">Soulmates</div>
-                <div class="roster-col" id="rosterCol1">
-                    <div class="sm-card" data-index="0">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                <div class="panel v1-sac">
+                    <div class="panel-header">Sacreds</div>
+                    <div class="roster-col">
+                        <div class="sac-card">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                        </div>
+                        <div class="sac-card">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                        </div>
+                        <div class="sac-card">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                        </div>
+                        <div class="sac-card">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                        </div>
+                        <div class="sac-card">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
                         </div>
                     </div>
-                    <div class="sm-card" data-index="1">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                </div>
+
+                <div class="panel v1-buffs">
+                    <div class="panel-header">Buffs & Debuffs</div>
+                    <div class="search-bar-container"><input type="text" class="search-input"
+                            placeholder="Search buffs..."></div>
+                    <div class="buff-palette">
+                        <div class="buff-slot">B1</div>
+                        <div class="buff-slot">B2</div>
+                        <div class="buff-slot">B3</div>
+                        <div class="buff-slot">D1</div>
+                        <div class="buff-slot">D2</div>
+                    </div>
+                </div>
+
+                <div class="panel v1-selection" id="selectionPanel1">
+                    <div class="panel-header">
+                        <span id="selectionTitle1">Select Item</span>
+                        <button class="btn-close" onclick="closeSelectionPanel(1)">✖</button>
+                    </div>
+                    <div class="filter-section">
+                        <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput1"
+                                oninput="filterDatabase(1)" placeholder="Search..."></div>
+                        <div class="filter-row" id="elementFilterRow1">
+                            <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
+                            <div class="filter-group">
+                                <label><input type="checkbox" value="fire" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Fire</span></label>
+                                <label><input type="checkbox" value="water" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Water</span></label>
+                                <label><input type="checkbox" value="earth" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Earth</span></label>
+                                <label><input type="checkbox" value="wind" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Wind</span></label>
+                                <label><input type="checkbox" value="light" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Light</span></label>
+                                <label><input type="checkbox" value="dark" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Dark</span></label>
+                                <label><input type="checkbox" value="neutral" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Neutral</span></label>
+                            </div>
+                        </div>
+                        <div class="filter-row" id="weaponFilterRow1">
+                            <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
+                            <div class="filter-group">
+                                <label><input type="checkbox" value="sword" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Sword</span></label>
+                                <label><input type="checkbox" value="axe" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Axe</span></label>
+                                <label><input type="checkbox" value="special blade" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Special Blade</span></label>
+                                <label><input type="checkbox" value="armor" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Armor</span></label>
+                                <label><input type="checkbox" value="spear" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Spear</span></label>
+                                <label><input type="checkbox" value="staff" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Staff</span></label>
+                                <label><input type="checkbox" value="bow" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Bow</span></label>
+                                <label><input type="checkbox" value="gun" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Gun</span></label>
+                                <label><input type="checkbox" value="magic tool" onchange="filterDatabase(1)"><span
+                                        class="f-tag">Magic Tool</span></label>
+                            </div>
                         </div>
                     </div>
-                    <div class="sm-card" data-index="2">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="3">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="4">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                    <div class="database-grid" id="dbGrid1"></div>
+                </div>
+
+                <div class="panel v1-timeline" id="timelinePanel1">
+                    <div class="timeline-container" id="timelineContainer1">
+                        <div class="t1-grid" id="t1GridContainer">
+                            <div class="t-header"></div>
+                            <div class="t-header">
+                                <div class="header-icon-slot">Sac</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="0">SM1</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="1">SM2</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="2">SM3</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="3">SM4</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="4">SM5</div>
+                            </div>
+                            <div class="t-header">Buffs</div>
+                            <div class="t-header">Debuffs</div>
+                            <div class="t-header"></div>
+
+                            <div class="t-cell turn-num">1</div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 'sacred', 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 0, 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 1, 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 2, 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 3, 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 4, 1)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="drop-zone"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="drop-zone"></div>
+                            </div>
+                            <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Sacreds -->
-            <div class="panel v1-sac">
-                <div class="panel-header">Sacreds</div>
-                <div class="roster-col">
-                    <div class="sac-card">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+        <!-- ========================================== -->
+        <!-- VERSION 2: WITHOUT BUFFS                  -->
+        <!-- ========================================== -->
+        <div class="ui-version active" id="version2">
+            <div class="workspace-v2">
+                <div class="panel v2-sm">
+                    <div class="panel-header">Soulmates</div>
+                    <div class="roster-col" id="rosterCol2">
+                        <div class="sm-card" data-index="0">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="1">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="2">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="3">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                            </div>
+                        </div>
+                        <div class="sm-card" data-index="4">
+                            <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                            <div class="wep-grid">
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                                <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sac-card">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                </div>
+
+                <div class="panel v2-sac">
+                    <div class="panel-header">Sacreds</div>
+                    <div class="roster-col" id="sacCol2">
+                        <div class="sac-card" data-sac-index="0">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                        </div>
+                        <div class="sac-card" data-sac-index="1">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                        </div>
+                        <div class="sac-card" data-sac-index="2">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                        </div>
+                        <div class="sac-card" data-sac-index="3">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                        </div>
+                        <div class="sac-card" data-sac-index="4">
+                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                        </div>
                     </div>
-                    <div class="sac-card">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                </div>
+
+                <div class="panel v2-selection" id="selectionPanel2">
+                    <div class="panel-header">
+                        <span id="selectionTitle2">Select Item</span>
+                        <button class="btn-close" onclick="closeSelectionPanel(2)">✖</button>
                     </div>
-                    <div class="sac-card">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                    <div class="filter-section">
+                        <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput2"
+                                oninput="filterDatabase(2)" placeholder="Search..."></div>
+                        <div class="filter-row" id="elementFilterRow2">
+                            <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
+                            <div class="filter-group">
+                                <label><input type="checkbox" value="fire" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Fire</span></label>
+                                <label><input type="checkbox" value="water" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Water</span></label>
+                                <label><input type="checkbox" value="earth" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Earth</span></label>
+                                <label><input type="checkbox" value="wind" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Wind</span></label>
+                                <label><input type="checkbox" value="light" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Light</span></label>
+                                <label><input type="checkbox" value="dark" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Dark</span></label>
+                                <label><input type="checkbox" value="neutral" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Neutral</span></label>
+                            </div>
+                        </div>
+                        <div class="filter-row" id="weaponFilterRow2">
+                            <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
+                            <div class="filter-group">
+                                <label><input type="checkbox" value="sword" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Sword</span></label>
+                                <label><input type="checkbox" value="axe" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Axe</span></label>
+                                <label><input type="checkbox" value="special blade" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Special Blade</span></label>
+                                <label><input type="checkbox" value="armor" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Armor</span></label>
+                                <label><input type="checkbox" value="spear" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Spear</span></label>
+                                <label><input type="checkbox" value="staff" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Staff</span></label>
+                                <label><input type="checkbox" value="bow" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Bow</span></label>
+                                <label><input type="checkbox" value="gun" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Gun</span></label>
+                                <label><input type="checkbox" value="magic tool" onchange="filterDatabase(2)"><span
+                                        class="f-tag">Magic Tool</span></label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sac-card">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div>
+                    <div class="database-grid" id="dbGrid2"></div>
+                </div>
+
+                <div class="panel v2-timeline" id="timelinePanel2">
+                    <div class="timeline-container" id="timelineContainer2">
+                        <div class="t2-grid" id="t2GridContainer">
+                            <div class="t-header"></div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" id="sacHeader2">Sac</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="0">SM1</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="1">SM2</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="2">SM3</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="3">SM4</div>
+                            </div>
+                            <div class="t-header">
+                                <div class="header-icon-slot" data-sm-col="4">SM5</div>
+                            </div>
+                            <div class="t-header"></div>
+
+                            <div class="t-cell turn-num">1</div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 'sacred', 2)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 0, 2)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 1, 2)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 2, 2)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 3, 2)"></div>
+                            </div>
+                            <div class="t-cell">
+                                <div class="action-slot" onclick="openActionMenu(this, 4, 2)"></div>
+                            </div>
+                            <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Buffs Menu -->
-            <div class="panel v1-buffs">
-                <div class="panel-header">Buffs & Debuffs</div>
-                <div class="search-bar-container"><input type="text" class="search-input" placeholder="Search buffs...">
-                </div>
-                <div class="buff-palette">
-                    <div class="buff-slot">B1</div>
-                    <div class="buff-slot">B2</div>
-                    <div class="buff-slot">B3</div>
-                    <div class="buff-slot">D1</div>
-                    <div class="buff-slot">D2</div>
-                </div>
-            </div>
-
-            <!-- Selection Panel -->
-            <div class="panel v1-selection" id="selectionPanel1">
-                <div class="panel-header">
-                    <span id="selectionTitle1">Select Item</span>
-                    <button class="btn-close" onclick="closeSelectionPanel(1)">✖</button>
-                </div>
-                <div class="filter-section">
-                    <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput1"
-                            oninput="filterDatabase(1)" placeholder="Search..."></div>
-                    <div class="filter-row" id="elementFilterRow1">
-                        <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
-                        <div class="filter-group">
-                            <label><input type="checkbox" value="Fire" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Fire</span></label>
-                            <label><input type="checkbox" value="Water" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Water</span></label>
-                            <label><input type="checkbox" value="Earth" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Earth</span></label>
-                            <label><input type="checkbox" value="Wind" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Wind</span></label>
-                            <label><input type="checkbox" value="Light" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Light</span></label>
-                            <label><input type="checkbox" value="Dark" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Dark</span></label>
-                        </div>
-                    </div>
-                    <div class="filter-row" id="weaponFilterRow1">
-                        <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
-                        <div class="filter-group">
-                            <label><input type="checkbox" value="Sword" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Sword</span></label>
-                            <label><input type="checkbox" value="Spear" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Spear</span></label>
-                            <label><input type="checkbox" value="Bow" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Bow</span></label>
-                            <label><input type="checkbox" value="Dagger" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Dagger</span></label>
-                            <label><input type="checkbox" value="Staff" onchange="filterDatabase(1)"><span
-                                    class="f-tag">Staff</span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="database-grid" id="dbGrid1"></div>
-            </div>
-
-            <!-- Timeline -->
-            <div class="panel v1-timeline" id="timelinePanel1">
-                <div class="panel-header"><span style="visibility: hidden;">.</span><button class="btn"
-                        onclick="addTurn(1)">+ Add Turn</button></div>
-                <div class="timeline-container" id="timelineContainer1">
-                    <div class="t1-grid" id="t1GridContainer">
-                        <div class="t-header"></div>
-                        <div class="t-header">
-                            <div class="header-icon-slot">Sac</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="0">SM1</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="1">SM2</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="2">SM3</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="3">SM4</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="4">SM5</div>
-                        </div>
-                        <div class="t-header">Buffs</div>
-                        <div class="t-header">Debuffs</div>
-                        <div class="t-header"></div>
-
-                        <div class="t-cell turn-num">1</div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 'sacred', 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 0, 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 1, 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 2, 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 3, 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 4, 1)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="drop-zone"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="drop-zone"></div>
-                        </div>
-                        <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- VERSION 2: WITHOUT BUFFS                  -->
-    <!-- ========================================== -->
-    <div class="ui-version active" id="version2">
-        <div class="workspace-v2">
-
-            <!-- Soulmates -->
-            <div class="panel v2-sm">
-                <div class="panel-header">Soulmates</div>
-                <div class="roster-col" id="rosterCol2">
-                    <div class="sm-card" data-index="0">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="1">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="2">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="3">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
-                        </div>
-                    </div>
-                    <div class="sm-card" data-index="4">
-                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
-                        <div class="wep-grid">
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
-                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sacreds -->
-            <div class="panel v2-sac">
-                <div class="panel-header">Sacreds</div>
-                <div class="roster-col" id="sacCol2">
-                    <div class="sac-card" data-sac-index="0">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
-                    </div>
-                    <div class="sac-card" data-sac-index="1">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
-                    </div>
-                    <div class="sac-card" data-sac-index="2">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
-                    </div>
-                    <div class="sac-card" data-sac-index="3">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
-                    </div>
-                    <div class="sac-card" data-sac-index="4">
-                        <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Selection Panel -->
-            <div class="panel v2-selection" id="selectionPanel2">
-                <div class="panel-header">
-                    <span id="selectionTitle2">Select Item</span>
-                    <button class="btn-close" onclick="closeSelectionPanel(2)">✖</button>
-                </div>
-                <div class="filter-section">
-                    <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput2"
-                            oninput="filterDatabase(2)" placeholder="Search..."></div>
-                    <div class="filter-row" id="elementFilterRow2">
-                        <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
-                        <div class="filter-group">
-                            <label><input type="checkbox" value="Fire" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Fire</span></label>
-                            <label><input type="checkbox" value="Water" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Water</span></label>
-                            <label><input type="checkbox" value="Earth" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Earth</span></label>
-                            <label><input type="checkbox" value="Wind" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Wind</span></label>
-                            <label><input type="checkbox" value="Light" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Light</span></label>
-                            <label><input type="checkbox" value="Dark" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Dark</span></label>
-                        </div>
-                    </div>
-                    <div class="filter-row" id="weaponFilterRow2">
-                        <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
-                        <div class="filter-group">
-                            <label><input type="checkbox" value="Sword" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Sword</span></label>
-                            <label><input type="checkbox" value="Spear" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Spear</span></label>
-                            <label><input type="checkbox" value="Bow" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Bow</span></label>
-                            <label><input type="checkbox" value="Dagger" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Dagger</span></label>
-                            <label><input type="checkbox" value="Staff" onchange="filterDatabase(2)"><span
-                                    class="f-tag">Staff</span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="database-grid" id="dbGrid2"></div>
-            </div>
-
-            <!-- Timeline -->
-            <div class="panel v2-timeline" id="timelinePanel2">
-                <div class="panel-header"><span style="visibility: hidden;">.</span><button class="btn"
-                        onclick="addTurn(2)">+ Add Turn</button></div>
-                <div class="timeline-container" id="timelineContainer2">
-                    <div class="t2-grid" id="t2GridContainer">
-                        <div class="t-header"></div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" id="sacHeader2">Sac</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="0">SM1</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="1">SM2</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="2">SM3</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="3">SM4</div>
-                        </div>
-                        <div class="t-header">
-                            <div class="header-icon-slot" data-sm-col="4">SM5</div>
-                        </div>
-                        <div class="t-header"></div>
-
-                        <div class="t-cell turn-num">1</div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 'sacred', 2)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 0, 2)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 1, 2)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 2, 2)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 3, 2)"></div>
-                        </div>
-                        <div class="t-cell">
-                            <div class="action-slot" onclick="openActionMenu(this, 4, 2)"></div>
-                        </div>
-                        <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- HORIZONTAL SQUARED ACTION POPUP MENU -->
+    <!-- ACTION POPUP MENU -->
     <div id="actionPopup" class="action-popup"></div>
 
-    <!-- SAVE FILE NAME MODAL DIALOG -->
+    <!-- SAVE MODAL DIALOG -->
     <div id="saveModal" class="modal-overlay">
         <div class="modal-box">
             <h3>Save Battle Plan</h3>
@@ -1261,31 +1276,47 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- ENGINE LOGIC & FILE IMPORT/EXPORT         -->
+    <!-- DYNAMIC JSON FETCH ENGINE                 -->
     <!-- ========================================== -->
     <script>
-        const mockCharacters = [
-            { id: 'c1', name: 'Ruby Vanguard', element: 'Fire', weaponType: 'Sword', color: '#D32F2F', weapons: [{ name: 'Flame Blade', color: '#E57373' }, { name: 'Ember Edge', color: '#FF8A65' }, { name: 'Blazing Pike', color: '#FF7043' }], personal: '#B71C1C', ultimate: '#FFD700' },
-            { id: 'c2', name: 'Azure Mage', element: 'Water', weaponType: 'Staff', color: '#1976D2', weapons: [{ name: 'Frost Spear', color: '#64B5F6' }, { name: 'Ice Wand', color: '#4FC3F7' }, { name: 'Tidal Tome', color: '#29B6F6' }], personal: '#0D47A1', ultimate: '#00E5FF' },
-            { id: 'c3', name: 'Emerald Warden', element: 'Wind', weaponType: 'Bow', color: '#388E3C', weapons: [{ name: 'Gaia Bow', color: '#81C784' }, { name: 'Sylvan Axe', color: '#66BB6A' }, { name: 'Nature Staff', color: '#4CAF50' }], personal: '#1B5E20', ultimate: '#76FF03' },
-            { id: 'c4', name: 'Amber Striker', element: 'Light', weaponType: 'Dagger', color: '#F57C00', weapons: [{ name: 'Solar Dagger', color: '#FFB74D' }, { name: 'Sun Scythe', color: '#FFA726' }, { name: 'Light Crossbow', color: '#FF9800' }], personal: '#E65100', ultimate: '#FFEA00' },
-            { id: 'c5', name: 'Violet Mystic', element: 'Dark', weaponType: 'Staff', color: '#7B1FA2', weapons: [{ name: 'Shadow Staff', color: '#BA68C8' }, { name: 'Void Orb', color: '#AB47BC' }, { name: 'Abyss Scythe', color: '#9C27B0' }], personal: '#4A148C', ultimate: '#E040FB' }
-        ];
+        // Global container for external JSON soulmates data
+        let mockSoulmates = [];
+
+        // Automatically fetch external soulmates.json on startup
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('soulmates.json')
+                .then(response => {
+                    if (!response.ok) throw new Error("Could not load soulmates.json");
+                    return response.json();
+                })
+                .then(data => {
+                    mockSoulmates = data;
+                    console.log("Successfully loaded soulmates.json dataset:", mockSoulmates);
+                })
+                .catch(error => {
+                    console.warn("soulmates.json not found or invalid. Using fallback mock data.", error);
+                    // Fallback dataset if file isn't found locally yet
+                    mockSoulmates = [
+                        { id: "c1", name: "Ruby Vanguard", rarity: "SSR", element: "fire", preferredWeapons: ["sword", "axe"], iconFile: "ruby_vanguard.png" },
+                        { id: "c2", name: "Azure Mage", rarity: "SSR", element: "water", preferredWeapons: ["staff", "magic tool"], iconFile: "azure_mage.png" }
+                    ];
+                });
+        });
 
         const mockWeapons = [
-            { id: 'w1', name: 'Flame Blade', element: 'Fire', weaponType: 'Sword', color: '#E57373' },
-            { id: 'w2', name: 'Frost Spear', element: 'Water', weaponType: 'Spear', color: '#64B5F6' },
-            { id: 'w3', name: 'Gaia Bow', element: 'Wind', weaponType: 'Bow', color: '#81C784' },
-            { id: 'w4', name: 'Solar Dagger', element: 'Light', weaponType: 'Dagger', color: '#FFB74D' },
-            { id: 'w5', name: 'Shadow Staff', element: 'Dark', weaponType: 'Staff', color: '#BA68C8' }
+            { id: 'w1', name: 'Flame Blade', element: 'fire', weaponType: 'sword', color: '#E57373' },
+            { id: 'w2', name: 'Frost Spear', element: 'water', weaponType: 'spear', color: '#64B5F6' },
+            { id: 'w3', name: 'Gaia Bow', element: 'wind', weaponType: 'bow', color: '#81C784' },
+            { id: 'w4', name: 'Solar Dagger', element: 'light', weaponType: 'special blade', color: '#FFB74D' },
+            { id: 'w5', name: 'Shadow Staff', element: 'dark', weaponType: 'staff', color: '#BA68C8' }
         ];
 
         const mockSacreds = [
-            { id: 's1', name: 'Sol Guardian', element: 'Light', color: '#FBC02D' },
-            { id: 's2', name: 'Lunar Spirit', element: 'Water', color: '#C5CAE9' },
-            { id: 's3', name: 'Abyss Lord', element: 'Dark', color: '#455A64' },
-            { id: 's4', name: 'Terra Colossus', element: 'Earth', color: '#8D6E63' },
-            { id: 's5', name: 'Aero Valkyrie', element: 'Wind', color: '#00BCD4' }
+            { id: 's1', name: 'Sol Guardian', element: 'light', color: '#FBC02D' },
+            { id: 's2', name: 'Lunar Spirit', element: 'water', color: '#C5CAE9' },
+            { id: 's3', name: 'Abyss Lord', element: 'dark', color: '#455A64' },
+            { id: 's4', name: 'Terra Colossus', element: 'earth', color: '#8D6E63' },
+            { id: 's5', name: 'Aero Valkyrie', element: 'wind', color: '#00BCD4' }
         ];
 
         const version1 = document.getElementById('version1');
@@ -1299,6 +1330,18 @@
 
         const characterLoadouts = { 1: {}, 2: {} };
         const selectedSacreds = { 1: {}, 2: {} };
+
+        function getElementColor(el) {
+            switch (el) {
+                case 'fire': return '#D32F2F';
+                case 'water': return '#1976D2';
+                case 'wind': return '#388E3C';
+                case 'earth': return '#8D6E63';
+                case 'light': return '#FBC02D';
+                case 'dark': return '#7B1FA2';
+                default: return '#555555';
+            }
+        }
 
         function getAssignedIds(versionNum, type) {
             const assigned = [];
@@ -1345,16 +1388,17 @@
             let html = '';
 
             if (currentSelectionType === 'soulmate') {
-                mockCharacters.forEach(char => {
+                mockSoulmates.forEach(char => {
                     const matchesSearch = char.name.toLowerCase().includes(searchText);
                     const matchesElement = selectedElements.length === 0 || selectedElements.includes(char.element);
-                    const matchesWeapon = selectedWeapons.length === 0 || selectedWeapons.includes(char.weaponType);
+                    const matchesWeapon = selectedWeapons.length === 0 || char.preferredWeapons.some(w => selectedWeapons.includes(w));
 
                     if (matchesSearch && matchesElement && matchesWeapon) {
                         const isDisabled = assignedIds.includes(char.id);
+                        const elColor = getElementColor(char.element);
                         html += `
-                        <div class="db-item ${isDisabled ? 'disabled' : ''}" onclick="selectMockSoulmate('${char.id}', '${char.name}', '${char.color}', ${JSON.stringify(char.weapons).replace(/"/g, '&quot;')}, '${char.personal}', '${char.ultimate}')">
-                            <div class="db-icon"><div class="token-icon" style="background-color: ${char.color};">${char.name.substring(0, 2).toUpperCase()}</div></div>
+                        <div class="db-item ${isDisabled ? 'disabled' : ''}" onclick="selectMockSoulmate('${char.id}', '${char.name}', '${elColor}', '${char.element}', ${JSON.stringify(char.preferredWeapons).replace(/"/g, '&quot;')})">
+                            <div class="db-icon"><div class="token-icon" style="background-color: ${elColor};">${char.name.substring(0, 2).toUpperCase()}</div></div>
                             <div class="db-name">${char.name}</div>
                         </div>
                     `;
@@ -1443,7 +1487,7 @@
             activeTargetSlot = null;
         }
 
-        function selectMockSoulmate(id, name, color, weaponsArray, personalWep, ultimateIcon) {
+        function selectMockSoulmate(id, name, color, element, preferredWeapons) {
             if (activeTargetSlot) {
                 activeTargetSlot.dataset.selectedId = id;
                 activeTargetSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`;
@@ -1456,17 +1500,18 @@
                         id: id,
                         name: name,
                         color: color,
-                        weapons: weaponsArray,
-                        personal: personalWep,
-                        ultimate: ultimateIcon
+                        element: element,
+                        preferredWeapons: preferredWeapons,
+                        weapons: [{ name: preferredWeapons[0], color: color }, { name: preferredWeapons[1], color: color }, { name: 'Universal', color: color }],
+                        personal: '#B71C1C',
+                        ultimate: '#FFD700'
                     };
 
                     const wepSlots = smCard.querySelectorAll('.wep-slot');
                     wepSlots.forEach((slot, idx) => {
-                        if (weaponsArray[idx]) {
-                            slot.dataset.selectedId = weaponsArray[idx].name;
-                            slot.innerHTML = `<div class="token-icon" style="background-color: ${weaponsArray[idx].color};">${weaponsArray[idx].name.substring(0, 2).toUpperCase()}</div>`;
-                        }
+                        const assignedWepName = preferredWeapons[idx % preferredWeapons.length];
+                        slot.dataset.selectedId = assignedWepName;
+                        slot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${assignedWepName.substring(0, 2).toUpperCase()}</div>`;
                     });
 
                     updateTimelineHeader(activeVersionNum, smIndex, color, name);
@@ -1583,6 +1628,10 @@
             closeActionMenu();
         });
 
+        function addTurnActive() {
+            addTurn(activeVersionNum);
+        }
+
         function addTurn(versionNum) {
             if (versionNum === 1) {
                 const grid = document.getElementById('t1GridContainer');
@@ -1649,7 +1698,6 @@
             }
         }
 
-        // --- CUSTOM MODAL SAVE DIALOG ---
         function openSaveModal() {
             const now = new Date();
             const year = now.getFullYear();
@@ -1701,7 +1749,6 @@
             closeSaveModal();
         }
 
-        // --- FILE IMPORT (UPLOAD JSON) ---
         function loadPlanJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
