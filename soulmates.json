@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raid Combat Planner</title>
+    <style>
+        /* High-Density Theme & Vertical Height Optimization with Left Sidebar */
+        body, html { 
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background-color: #121212; color: #e0e0e0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; flex-direction: row; overflow: hidden; box-sizing: border-box;
+}
+
+        *, *:before, *:after { box-sizing: inherit;
+}
+/* --- VERTICAL LEFT SIDEBAR CONTROLS --- */
+        .sidebar { background: #1a1a1a; width: 200px; padding: 12px; border-right: 1px solid #333; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; z-index: 100; height: 100vh;
+}
+        .sidebar h1 { margin: 0; font-size: 14px; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 8px;
+}
+        
+        .sidebar-actions { display: flex; flex-direction: column; gap: 6px;
+}
+        .btn-action { background: #333; color: #ccc; border: 1px solid #444; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; text-align: center;
+}
+        .btn-action:hover { background: #444; color: #fff; border-color: #555;
+}
+
+        .toggle-container { display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; align-items: center; border-top: 1px solid #333; padding-top: 12px; margin-top: auto;
+}
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px;
+}
+        .switch input { opacity: 0; width: 0; height: 0;
+}
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; border-radius: 20px; transition: .2s; border: 1px solid #444;
+}
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: #aaa; border-radius: 50%; transition: .2s;
+}
+        input:checked + .slider { background-color: #2a2a2a; border-color: #4CAF50;
+}
+        input:checked + .slider:before { transform: translateX(16px); background-color: #4CAF50;
+}
+/* --- STABLE FLEX WORKSPACE CONTAINER --- */
+        .workspace-container { flex-grow: 1; height: 100vh; position: relative; overflow: hidden; background: #121212; display: flex; flex-direction: column;
+}
+        
+        .ui-version { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; background: #121212; overflow: hidden;
+}
+        .ui-version.active { display: flex; flex-direction: column; flex-grow: 1;
+}
+/* --- VERSION 1 GRID (With Buffs) --- */
+        .workspace-v1 { 
+            display: grid; 
+            grid-template-columns: 240px 90px 1fr; 
+            grid-template-rows: max-content 1fr;
+            gap: 8px; padding: 8px; 
+            flex-grow: 1; overflow: hidden; height: 100%;
+}
+        .v1-sm { grid-column: 1; grid-row: 1;
+}
+        .v1-sac { grid-column: 2; grid-row: 1;
+}
+        .v1-buffs { grid-column: 1 / 3; grid-row: 2;
+} 
+        .v1-timeline { grid-column: 3; grid-row: 1 / 3; display: flex;
+}
+        .v1-selection { grid-column: 3; grid-row: 1 / 3; display: none;
+}
+/* --- VERSION 2 GRID (Without Buffs) --- */
+        .workspace-v2 { 
+            display: grid; 
+            grid-template-columns: 280px 100px 1fr; 
+            grid-template-rows: 1fr; 
+            gap: 8px; padding: 8px; 
+            flex-grow: 1; overflow: hidden; height: 100%;
+}
+        .v2-sm { grid-column: 1; grid-row: 1;
+}
+        .v2-sac { grid-column: 2; grid-row: 1;
+}
+        .v2-timeline { grid-column: 3; grid-row: 1; display: flex;
+}
+        .v2-selection { grid-column: 3; grid-row: 1; display: none;
+}
+/* --- COMMON STYLES --- */
+        .panel { background: #1e1e1e; border: 1px solid #333; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden;
+}
+        .panel-header { background: #252525; padding: 6px 10px; border-bottom: 1px solid #333; font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; height: 28px;
+}
+
+        .token-icon { width: 100%; height: 100%; border-radius: 2px; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px rgba(0,
+  0,
+  0,
+  0.8); pointer-events: none;
+}
+/* --- ROSTER SHEETS --- */
+        .roster-col { padding: 6px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
+}
+        
+        .sm-card, .sac-card { display: flex; align-items: center;
+}
+        .sm-card { gap: 6px; height: 44px;
+}
+        .sac-card { justify-content: center; height: 44px;
+}
+        
+        .v2-sm .sm-card, .v2-sac .sac-card { height: 52px;
+}
+
+        .slot { 
+            background: #252525; border: 1px dashed #555; border-radius: 4px; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; color: #777; font-size: 10px; text-align: center;
+            overflow: hidden; position: relative;
+}
+        .slot:hover { border-color: #4CAF50; color: #fff; background: #333;
+}
+        
+        .v1-sm .portrait { width: 40px; height: 40px; flex-shrink: 0;
+}
+        .v1-sac .sac-portrait { width: 40px; height: 40px; flex-shrink: 0;
+}
+        .v1-sm .wep-grid { display: grid; grid-template-columns: repeat(3,
+  1fr); gap: 4px; flex-grow: 1;
+}
+        .v1-sm .wep-slot { width: 32px; height: 32px;
+}
+
+        .v2-sm .portrait { width: 48px; height: 48px; flex-shrink: 0;
+}
+        .v2-sac .sac-portrait { width: 48px; height: 48px; flex-shrink: 0;
+}
+        .v2-sm .wep-grid { display: grid; grid-template-columns: repeat(3,
+  1fr); gap: 4px; flex-grow: 1;
+}
+        .v2-sm .wep-slot { width: 38px; height: 38px;
+}
+/* Buffs Menu Specifics */
+        .search-bar-container { padding: 8px; border-bottom: 1px solid #333; background: #1a1a1a; flex-shrink: 0;
+}
+        .search-input { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 11px;
+}
+        .search-input:focus { outline: none; border-color: #4CAF50;
+}
+        .buff-palette { padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; align-content: flex-start;
+}
+        .buff-slot { width: 32px; height: 32px; background: #252525; border: 1px dashed #555; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 9px; color: #777; cursor: grab; flex-shrink: 0; overflow: hidden;
+}
+        .buff-slot:hover { border-color: #4CAF50; background: #333; color: #fff;
+}
+/* Selection Panel & Filter Elements */
+        .filter-section { padding: 8px 10px; background: #1a1a1a; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+}
+        .filter-row { display: flex; gap: 8px; align-items: center;
+}
+        .filter-row.search-row { margin-bottom: 2px;
+}
+        .filter-group { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+        .filter-group label { cursor: pointer; display: flex; align-items: center;
+}
+        .filter-group input[type="checkbox"
+] { display: none;
+}
+        .f-tag { background: #222; border: 1px solid #444; color: #888; padding: 3px 8px; border-radius: 4px; font-size: 10px; user-select: none; transition: 0.2s;
+}
+        .filter-group input[type="checkbox"
+]:checked + .f-tag { background: #4CAF50; border-color: #4CAF50; color: #fff;
+}
+
+        .database-grid { padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(64px,
+  1fr)); gap: 8px; overflow-y: auto; align-content: flex-start; flex-grow: 1;
+}
+        .db-item { background: #252525; border: 1px solid #444; border-radius: 4px; display: flex; flex-direction: column; align-items: center; padding: 4px; cursor: pointer;
+}
+        .db-item:hover { border-color: #4CAF50; background: #333;
+}
+        .db-item.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none;
+}
+        .db-icon { width: 42px; height: 42px; background: #111; border-radius: 4px; margin-bottom: 3px; display: flex; justify-content: center; align-items: center; overflow: hidden;
+}
+        .db-name { font-size: 9px; color: #ccc; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+}
+        .btn-close { background: transparent; color: #aaa; border: none; font-size: 14px; cursor: pointer;
+}
+        .btn-close:hover { color: #fff;
+}
+/* Timeline Specifics */
+        .btn { background: #4CAF50; color: white; border: none; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: bold;
+}
+        .btn:hover { background: #45a049;
+}
+        .timeline-container { overflow-y: auto; overflow-x: auto; flex-grow: 1; background: #111; position: relative;
+}
+        
+        .t1-grid { display: grid; grid-template-columns: 36px 46px 46px 46px 46px 46px 46px minmax(130px,
+  1fr) minmax(130px,
+  1fr) 36px; min-width: 656px;
+}
+        .t2-grid { display: grid; grid-template-columns: 40px 56px 56px 56px 56px 56px 56px 36px; min-width: 432px;
+}
+        
+        .t-header { background: #1a1a1a; padding: 4px; border-bottom: 1px solid #333; border-right: 1px solid #222; position: sticky; top: 0; z-index: 10; display: flex; justify-content: center; align-items: center; height: 56px; box-sizing: border-box;
+}
+        
+        .v1-timeline .header-icon-slot { width: 32px; height: 32px; background: #252525; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; color: #666; font-size: 9px; flex-shrink: 0; box-sizing: border-box;
+}
+        .v2-timeline .header-icon-slot { width: 100%; height: 100%; background: #252525; border: 1px solid #444; border-radius: 4px; display: flex; justify-content: center; align-items: center; color: #666; font-size: 10px; box-sizing: border-box;
+}
+
+        .v1-timeline .t-cell { height: 44px; padding: 3px; border-bottom: 1px solid #222; border-right: 1px solid #222; display: flex; justify-content: center; align-items: center; overflow: hidden; box-sizing: border-box;
+}
+        .v2-timeline .t-cell { height: 56px; padding: 4px; border-bottom: 1px solid #222; border-right: 1px solid #222; display: flex; justify-content: center; align-items: center; overflow: hidden; box-sizing: border-box;
+}
+
+        .turn-num { background: #151515; font-weight: bold; color: #fff; font-size: 11px;
+}
+        
+        .v1-timeline .action-slot { width: 32px; height: 32px; background: #252525; border-radius: 4px; border: 1px dashed #555; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; flex-shrink: 0; box-sizing: border-box;
+}
+        .v1-timeline .action-slot:hover { border-color: #4CAF50; background: #333;
+}
+
+        .v2-timeline .action-slot { width: 100%; height: 100%; background: #252525; border-radius: 4px; border: 1px dashed #555; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; flex-shrink: 0; box-sizing: border-box;
+}
+        .v2-timeline .action-slot:hover { border-color: #4CAF50; background: #333;
+}
+
+        .drop-zone { width: 100%; height: 32px; background: #1a1a1a; border: 1px dashed #444; border-radius: 3px; display: flex; flex-wrap: wrap; gap: 3px; padding: 3px; overflow: hidden; box-sizing: border-box;
+}
+
+        .btn-delete-row { background: transparent; border: none; color: #ff4d4d; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transition: 0.2s;
+}
+        .btn-delete-row:hover { color: #ff1a1a; background: rgba(255,
+  77,
+  77,
+  0.1); border-radius: 2px;
+}
+/* --- ACTION POPUP MENU --- */
+        .action-popup {
+            position: absolute; background: #1e1e1e; border: 1px solid #444; border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,
+  0,
+  0,
+  0.6); display: none; flex-direction: row; gap: 4px; z-index: 1000; padding: 4px;
+}
+        .action-popup-item {
+            width: 34px; height: 34px; background: #252525; border: 1px solid #444; border-radius: 4px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.15s;
+}
+        .action-popup-item:hover { border-color: #4CAF50; background: #333;
+}
+        .action-popup-item .token-icon { width: 100%; height: 100%; font-size: 8px;
+}
+/* --- CUSTOM MODAL DIALOG --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,
+  0,
+  0,
+  0.7); display: none; justify-content: center; align-items: center; z-index: 10000;
+}
+        .modal-box {
+            background: #1e1e1e; border: 1px solid #444; border-radius: 6px; width: 300px;
+            padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 8px 24px rgba(0,
+  0,
+  0,
+  0.8);
+}
+        .modal-box h3 { margin: 0; font-size: 13px; color: #fff; text-transform: uppercase;
+}
+        .modal-input {
+            background: #111; border: 1px solid #444; color: #fff; padding: 6px 8px;
+            border-radius: 4px; font-size: 12px; width: 100%;
+}
+        .modal-input:focus { outline: none; border-color: #4CAF50;
+}
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 6px;
+}
+        .modal-btn { padding: 5px 12px; border-radius: 3px; font-size: 11px; font-weight: bold; cursor: pointer; border: none;
+}
+        .modal-btn.cancel { background: #333; color: #ccc;
+}
+        .modal-btn.cancel:hover { background: #444; color: #fff;
+}
+        .modal-btn.confirm { background: #4CAF50; color: #fff;
+}
+        .modal-btn.confirm:hover { background: #45a049;
+}
+    </style>
+</head>
+<body>
+
+<!-- VERTICAL LEFT SIDEBAR CONTROLS -->
+<div class="sidebar">
+    <h1>Raid Tool</h1>
+    <div class="sidebar-actions">
+        <button class="btn-action" onclick="addTurnActive()">+ Add Turn</button>
+        <button class="btn-action" onclick="openSaveModal()">Save JSON</button>
+        <button class="btn-action" onclick="document.getElementById('fileInput').click()">Load JSON</button>
+        <input type="file" id="fileInput" style="display: none;" accept=".json" onchange="loadPlanJSON(event)">
+    </div>
+    <div class="toggle-container">
+        <span>Planner (No Buffs)</span>
+        <label class="switch">
+            <input type="checkbox" id="uiToggle" onchange="switchUI()">
+            <span class="slider"></span>
+        </label>
+        <span style="color: #fff;">With Buffs</span>
+    </div>
+</div>
+
+<div class="workspace-container">
+    <!-- ========================================== -->
+    <!-- VERSION 1: WITH BUFFS/DEBUFFS MENU        -->
+    <!-- ========================================== -->
+    <div class="ui-version" id="version1">
+        <div class="workspace-v1">
+            <div class="panel v1-sm">
+                <div class="panel-header">Soulmates</div>
+                <div class="roster-col" id="rosterCol1">
+                    <div class="sm-card" data-index="0">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="1">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="2">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="3">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="4">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 1, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 1, this)">W3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel v1-sac">
+                <div class="panel-header">Sacreds</div>
+                <div class="roster-col">
+                    <div class="sac-card"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div></div>
+                    <div class="sac-card"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div></div>
+                    <div class="sac-card"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div></div>
+                    <div class="sac-card"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div></div>
+                    <div class="sac-card"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 1, this)">Sac</div></div>
+                </div>
+            </div>
+
+            <div class="panel v1-buffs">
+                <div class="panel-header">Buffs & Debuffs</div>
+                <div class="search-bar-container"><input type="text" class="search-input" placeholder="Search buffs..."></div>
+                <div class="buff-palette">
+                    <div class="buff-slot">B1</div><div class="buff-slot">B2</div><div class="buff-slot">B3</div><div class="buff-slot">D1</div><div class="buff-slot">D2</div>
+                </div>
+            </div>
+
+            <div class="panel v1-selection" id="selectionPanel1">
+                <div class="panel-header">
+                    <span id="selectionTitle1">Select Item</span>
+                    <button class="btn-close" onclick="closeSelectionPanel(1)">✖</button>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput1" oninput="filterDatabase(1)" placeholder="Search..."></div>
+                    <div class="filter-row" id="elementFilterRow1">
+                        <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
+                        <div class="filter-group">
+                            <label><input type="checkbox" value="fire" onchange="filterDatabase(1)"><span class="f-tag">Fire</span></label>
+                            <label><input type="checkbox" value="water" onchange="filterDatabase(1)"><span class="f-tag">Water</span></label>
+                            <label><input type="checkbox" value="earth" onchange="filterDatabase(1)"><span class="f-tag">Earth</span></label>
+                            <label><input type="checkbox" value="wind" onchange="filterDatabase(1)"><span class="f-tag">Wind</span></label>
+                            <label><input type="checkbox" value="light" onchange="filterDatabase(1)"><span class="f-tag">Light</span></label>
+                            <label><input type="checkbox" value="dark" onchange="filterDatabase(1)"><span class="f-tag">Dark</span></label>
+                            <label><input type="checkbox" value="neutral" onchange="filterDatabase(1)"><span class="f-tag">Neutral</span></label>
+                        </div>
+                    </div>
+                    <div class="filter-row" id="weaponFilterRow1">
+                        <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
+                        <div class="filter-group">
+                            <label><input type="checkbox" value="sword" onchange="filterDatabase(1)"><span class="f-tag">Sword</span></label>
+                            <label><input type="checkbox" value="axe" onchange="filterDatabase(1)"><span class="f-tag">Axe</span></label>
+                            <label><input type="checkbox" value="special blade" onchange="filterDatabase(1)"><span class="f-tag">Special Blade</span></label>
+                            <label><input type="checkbox" value="armor" onchange="filterDatabase(1)"><span class="f-tag">Armor</span></label>
+                            <label><input type="checkbox" value="spear" onchange="filterDatabase(1)"><span class="f-tag">Spear</span></label>
+                            <label><input type="checkbox" value="staff" onchange="filterDatabase(1)"><span class="f-tag">Staff</span></label>
+                            <label><input type="checkbox" value="bow" onchange="filterDatabase(1)"><span class="f-tag">Bow</span></label>
+                            <label><input type="checkbox" value="gun" onchange="filterDatabase(1)"><span class="f-tag">Gun</span></label>
+                            <label><input type="checkbox" value="magic tool" onchange="filterDatabase(1)"><span class="f-tag">Magic Tool</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="database-grid" id="dbGrid1"></div>
+            </div>
+
+            <div class="panel v1-timeline" id="timelinePanel1">
+                <div class="timeline-container" id="timelineContainer1">
+                    <div class="t1-grid" id="t1GridContainer">
+                        <div class="t-header"></div>
+                        <div class="t-header"><div class="header-icon-slot">Sac</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="0">SM1</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="1">SM2</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="2">SM3</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="3">SM4</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="4">SM5</div></div>
+                        <div class="t-header">Buffs</div>
+                        <div class="t-header">Debuffs</div>
+                        <div class="t-header"></div>
+
+                        <div class="t-cell turn-num">1</div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 'sacred', 1)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 0, 1)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 1, 1)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 2, 1)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 3, 1)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 4, 1)"></div></div>
+                        <div class="t-cell"><div class="drop-zone"></div></div>
+                        <div class="t-cell"><div class="drop-zone"></div></div>
+                        <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VERSION 2: WITHOUT BUFFS                  -->
+    <!-- ========================================== -->
+    <div class="ui-version active" id="version2">
+        <div class="workspace-v2">
+            <div class="panel v2-sm">
+                <div class="panel-header">Soulmates</div>
+                <div class="roster-col" id="rosterCol2">
+                    <div class="sm-card" data-index="0">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="1">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="2">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="3">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                        </div>
+                    </div>
+                    <div class="sm-card" data-index="4">
+                        <div class="slot portrait" onclick="openSelectionPanel('soulmate', 2, this)">SM</div>
+                        <div class="wep-grid">
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W1</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W2</div>
+                            <div class="slot wep-slot" onclick="openSelectionPanel('weapon', 2, this)">W3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel v2-sac">
+                <div class="panel-header">Sacreds</div>
+                <div class="roster-col" id="sacCol2">
+                    <div class="sac-card" data-sac-index="0"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div></div>
+                    <div class="sac-card" data-sac-index="1"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div></div>
+                    <div class="sac-card" data-sac-index="2"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div></div>
+                    <div class="sac-card" data-sac-index="3"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div></div>
+                    <div class="sac-card" data-sac-index="4"><div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div></div>
+                </div>
+            </div>
+
+            <div class="panel v2-selection" id="selectionPanel2">
+                <div class="panel-header">
+                    <span id="selectionTitle2">Select Item</span>
+                    <button class="btn-close" onclick="closeSelectionPanel(2)">✖</button>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput2" oninput="filterDatabase(2)" placeholder="Search..."></div>
+                    <div class="filter-row" id="elementFilterRow2">
+                        <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
+                        <div class="filter-group">
+                            <label><input type="checkbox" value="fire" onchange="filterDatabase(2)"><span class="f-tag">Fire</span></label>
+                            <label><input type="checkbox" value="water" onchange="filterDatabase(2)"><span class="f-tag">Water</span></label>
+                            <label><input type="checkbox" value="earth" onchange="filterDatabase(2)"><span class="f-tag">Earth</span></label>
+                            <label><input type="checkbox" value="wind" onchange="filterDatabase(2)"><span class="f-tag">Wind</span></label>
+                            <label><input type="checkbox" value="light" onchange="filterDatabase(2)"><span class="f-tag">Light</span></label>
+                            <label><input type="checkbox" value="dark" onchange="filterDatabase(2)"><span class="f-tag">Dark</span></label>
+                            <label><input type="checkbox" value="neutral" onchange="filterDatabase(2)"><span class="f-tag">Neutral</span></label>
+                        </div>
+                    </div>
+                    <div class="filter-row" id="weaponFilterRow2">
+                        <span style="font-size: 11px; color: #888; width: 55px;">Weapon:</span>
+                        <div class="filter-group">
+                            <label><input type="checkbox" value="sword" onchange="filterDatabase(2)"><span class="f-tag">Sword</span></label>
+                            <label><input type="checkbox" value="axe" onchange="filterDatabase(2)"><span class="f-tag">Axe</span></label>
+                            <label><input type="checkbox" value="special blade" onchange="filterDatabase(2)"><span class="f-tag">Special Blade</span></label>
+                            <label><input type="checkbox" value="armor" onchange="filterDatabase(2)"><span class="f-tag">Armor</span></label>
+                            <label><input type="checkbox" value="spear" onchange="filterDatabase(2)"><span class="f-tag">Spear</span></label>
+                            <label><input type="checkbox" value="staff" onchange="filterDatabase(2)"><span class="f-tag">Staff</span></label>
+                            <label><input type="checkbox" value="bow" onchange="filterDatabase(2)"><span class="f-tag">Bow</span></label>
+                            <label><input type="checkbox" value="gun" onchange="filterDatabase(2)"><span class="f-tag">Gun</span></label>
+                            <label><input type="checkbox" value="magic tool" onchange="filterDatabase(2)"><span class="f-tag">Magic Tool</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="database-grid" id="dbGrid2"></div>
+            </div>
+
+            <div class="panel v2-timeline" id="timelinePanel2">
+                <div class="timeline-container" id="timelineContainer2">
+                    <div class="t2-grid" id="t2GridContainer">
+                        <div class="t-header"></div>
+                        <div class="t-header"><div class="header-icon-slot" id="sacHeader2">Sac</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="0">SM1</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="1">SM2</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="2">SM3</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="3">SM4</div></div>
+                        <div class="t-header"><div class="header-icon-slot" data-sm-col="4">SM5</div></div>
+                        <div class="t-header"></div>
+
+                        <div class="t-cell turn-num">1</div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 'sacred', 2)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 0, 2)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 1, 2)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 2, 2)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 3, 2)"></div></div>
+                        <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 4, 2)"></div></div>
+                        <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ACTION POPUP MENU -->
+<div id="actionPopup" class="action-popup"></div>
+
+<!-- SAVE MODAL DIALOG -->
+<div id="saveModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Save Battle Plan</h3>
+        <p style="font-size: 11px; color: #aaa; margin: 0;">Enter filename for download:</p>
+        <input type="text" id="filenameInput" class="modal-input">
+        <div class="modal-buttons">
+            <button class="modal-btn cancel" onclick="closeSaveModal()">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmSavePlan()">Download</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- DYNAMIC JSON FETCH ENGINE                 -->
+<!-- ========================================== -->
+<script>
+    // Global container for external JSON soulmates data
+    let mockSoulmates = [];
+
+    // Automatically fetch external soulmates.json on startup
+    window.addEventListener('DOMContentLoaded', () => {
+        fetch('soulmates.json')
+            .then(response => {
+                if (!response.ok) throw new Error("Could not load soulmates.json");
+                return response.json();
+  })
+            .then(data => {
+                mockSoulmates = data;
+                console.log("Successfully loaded soulmates.json dataset:", mockSoulmates);
+  })
+            .catch(error => {
+                console.warn("soulmates.json not found or invalid. Using fallback mock data.", error);
+                // Fallback dataset if file isn't found locally yet
+                mockSoulmates = [
+      { id: "c1", name: "Ruby Vanguard", rarity: "SSR", element: "fire", preferredWeapons: [
+          "sword",
+          "axe"
+        ], iconFile: "ruby_vanguard.png"
+      },
+      { id: "c2", name: "Azure Mage", rarity: "SSR", element: "water", preferredWeapons: [
+          "staff",
+          "magic tool"
+        ], iconFile: "azure_mage.png"
+      }
+    ];
+  });
+});
+
+    const mockWeapons = [
+  { id: 'w1', name: 'Flame Blade', element: 'fire', weaponType: 'sword', color: '#E57373'
+  },
+  { id: 'w2', name: 'Frost Spear', element: 'water', weaponType: 'spear', color: '#64B5F6'
+  },
+  { id: 'w3', name: 'Gaia Bow', element: 'wind', weaponType: 'bow', color: '#81C784'
+  },
+  { id: 'w4', name: 'Solar Dagger', element: 'light', weaponType: 'special blade', color: '#FFB74D'
+  },
+  { id: 'w5', name: 'Shadow Staff', element: 'dark', weaponType: 'staff', color: '#BA68C8'
+  }
+];
+
+    const mockSacreds = [
+  { id: 's1', name: 'Sol Guardian', element: 'light', color: '#FBC02D'
+  },
+  { id: 's2', name: 'Lunar Spirit', element: 'water', color: '#C5CAE9'
+  },
+  { id: 's3', name: 'Abyss Lord', element: 'dark', color: '#455A64'
+  },
+  { id: 's4', name: 'Terra Colossus', element: 'earth', color: '#8D6E63'
+  },
+  { id: 's5', name: 'Aero Valkyrie', element: 'wind', color: '#00BCD4'
+  }
+];
+
+    const version1 = document.getElementById('version1');
+    const version2 = document.getElementById('version2');
+    const uiToggle = document.getElementById('uiToggle');
+
+    let activeTargetSlot = null; 
+    let currentActionSlot = null;
+    let currentSelectionType = 'soulmate';
+    let activeVersionNum = 2;
+
+    const characterLoadouts = {
+  1: {},
+  2: {}
+};
+    const selectedSacreds = {
+  1: {},
+  2: {}
+};
+
+    function getElementColor(el) {
+        switch(el) {
+            case 'fire': return '#D32F2F';
+            case 'water': return '#1976D2';
+            case 'wind': return '#388E3C';
+            case 'earth': return '#8D6E63';
+            case 'light': return '#FBC02D';
+            case 'dark': return '#7B1FA2';
+            default: return '#555555';
+  }
+}
+
+    function getAssignedIds(versionNum, type) {
+        const assigned = [];
+        const activeVerContainer = document.getElementById(versionNum === 2 ? 'version2' : 'version1');
+        if (type === 'soulmate') {
+            const roster = activeVerContainer.querySelectorAll('.sm-card .portrait');
+            roster.forEach(slot => {
+                if (slot.dataset.selectedId) assigned.push(slot.dataset.selectedId);
+    });
+  } else if (type === 'sacred') {
+            const sacreds = activeVerContainer.querySelectorAll('.sac-card .sac-portrait');
+            sacreds.forEach(slot => {
+                if (slot.dataset.selectedId) assigned.push(slot.dataset.selectedId);
+    });
+  }
+        return assigned;
+}
+
+    function populateMockDatabase(versionNum) {
+        const grid = document.getElementById('dbGrid' + versionNum);
+        if (!grid) return;
+
+        const assignedIds = getAssignedIds(versionNum, currentSelectionType);
+        const searchInput = document.getElementById('searchInput' + versionNum);
+        const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+
+        const elementRow = document.getElementById('elementFilterRow' + versionNum);
+        const weaponRow = document.getElementById('weaponFilterRow' + versionNum);
+
+        if (currentSelectionType === 'weapon') {
+            if (elementRow) elementRow.style.display = 'flex';
+            if (weaponRow) weaponRow.style.display = 'flex';
+  } else if (currentSelectionType === 'soulmate') {
+            if (elementRow) elementRow.style.display = 'flex';
+            if (weaponRow) weaponRow.style.display = 'flex';
+  } else {
+            if (elementRow) elementRow.style.display = 'flex';
+            if (weaponRow) weaponRow.style.display = 'none';
+  }
+
+        const selectedElements = Array.from(document.querySelectorAll(`#selectionPanel${versionNum
+  } #elementFilterRow${versionNum
+  } input:checked`)).map(cb => cb.value);
+        const selectedWeapons = Array.from(document.querySelectorAll(`#selectionPanel${versionNum
+  } #weaponFilterRow${versionNum
+  } input:checked`)).map(cb => cb.value);
+
+        let html = '';
+
+        if (currentSelectionType === 'soulmate') {
+            mockSoulmates.forEach(char => {
+                const matchesSearch = char.name.toLowerCase().includes(searchText);
+                const matchesElement = selectedElements.length === 0 || selectedElements.includes(char.element);
+                const matchesWeapon = selectedWeapons.length === 0 || char.preferredWeapons.some(w => selectedWeapons.includes(w));
+
+                if (matchesSearch && matchesElement && matchesWeapon) {
+                    const isDisabled = assignedIds.includes(char.id);
+                    const elColor = getElementColor(char.element);
+                    html += `
+                        <div class="db-item ${isDisabled ? 'disabled' : ''}" onclick="selectMockSoulmate('${char.id}', '${char.name}', '${elColor}', '${char.element}', ${JSON.stringify(char.preferredWeapons).replace(/"/g, '&quot;')
+      })">
+                            <div class="db-icon"><div class="token-icon" style="background-color: ${elColor};">${char.name.substring(0,
+        2).toUpperCase()
+      }</div></div>
+                            <div class="db-name">${char.name
+      }</div>
+                        </div>
+                    `;
+    }
+  });
+} else if (currentSelectionType === 'sacred') {
+            mockSacreds.forEach(sac => {
+                const matchesSearch = sac.name.toLowerCase().includes(searchText);
+                const matchesElement = selectedElements.length === 0 || selectedElements.includes(sac.element);
+
+                if (matchesSearch && matchesElement) {
+                    const isDisabled = assignedIds.includes(sac.id);
+                    html += `
+                        <div class="db-item ${isDisabled ? 'disabled' : ''}" onclick="selectMockSacred('${sac.id}', '${sac.name}', '${sac.color}')">
+                            <div class="db-icon"><div class="token-icon" style="background-color: ${sac.color};">${sac.name.substring(0,
+        2).toUpperCase()
+      }</div></div>
+                            <div class="db-name">${sac.name
+      }</div>
+                        </div>
+                    `;
+    }
+  });
+} else if (currentSelectionType === 'weapon') {
+            mockWeapons.forEach(wep => {
+                const matchesSearch = wep.name.toLowerCase().includes(searchText);
+                const matchesElement = selectedElements.length === 0 || selectedElements.includes(wep.element);
+                const matchesWeapon = selectedWeapons.length === 0 || selectedWeapons.includes(wep.weaponType);
+
+                if (matchesSearch && matchesElement && matchesWeapon) {
+                    html += `
+                        <div class="db-item" onclick="selectMockWeapon('${wep.id}', '${wep.name}', '${wep.color}')">
+                            <div class="db-icon"><div class="token-icon" style="background-color: ${wep.color};">${wep.name.substring(0,
+        2).toUpperCase()
+      }</div></div>
+                            <div class="db-name">${wep.name
+      }</div>
+                        </div>
+                    `;
+    }
+  });
+}
+        grid.innerHTML = html;
+}
+
+    function filterDatabase(versionNum) {
+        populateMockDatabase(versionNum);
+}
+
+    function switchUI() {
+        if (uiToggle.checked) {
+            version1.classList.add('active');
+            version2.classList.remove('active');
+            activeVersionNum = 1;
+} else {
+            version2.classList.add('active');
+            version1.classList.remove('active');
+            activeVersionNum = 2;
+}
+        closeActionMenu();
+}
+
+    function openSelectionPanel(type, versionNum, slotElement) {
+        activeTargetSlot = slotElement; 
+        currentSelectionType = type;
+        activeVersionNum = versionNum;
+        
+        const timeline = document.getElementById('timelinePanel' + versionNum);
+        const selection = document.getElementById('selectionPanel' + versionNum);
+        const title = document.getElementById('selectionTitle' + versionNum);
+
+        if (type === 'soulmate') title.innerText = "Select Soulmate";
+        else if (type === 'sacred') title.innerText = "Select Sacred";
+        else if (type === 'weapon') title.innerText = "Select Weapon";
+
+        const searchInput = document.getElementById('searchInput' + versionNum);
+        if (searchInput) searchInput.value = '';
+
+        populateMockDatabase(versionNum);
+
+        timeline.style.display = 'none';
+        selection.style.display = 'flex';
+        closeActionMenu();
+}
+
+    function closeSelectionPanel(versionNum) {
+        const timeline = document.getElementById('timelinePanel' + versionNum);
+        const selection = document.getElementById('selectionPanel' + versionNum);
+
+        selection.style.display = 'none';
+        timeline.style.display = 'flex';
+        activeTargetSlot = null;
+}
+
+    function selectMockSoulmate(id, name, color, element, preferredWeapons) {
+        if (activeTargetSlot) {
+            activeTargetSlot.dataset.selectedId = id;
+            activeTargetSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0,
+    2).toUpperCase()
+  }</div>`;
+            
+            const smCard = activeTargetSlot.closest('.sm-card');
+            if (smCard) {
+                const smIndex = parseInt(smCard.getAttribute('data-index'));
+                
+                characterLoadouts[activeVersionNum
+    ][smIndex
+    ] = {
+                    id: id,
+                    name: name,
+                    color: color,
+                    element: element,
+                    preferredWeapons: preferredWeapons,
+                    weapons: [
+        {name: preferredWeapons[
+            0
+          ], color: color
+        },
+        {name: preferredWeapons[
+            1
+          ], color: color
+        },
+        {name: 'Universal', color: color
+        }
+      ],
+                    personal: '#B71C1C',
+                    ultimate: '#FFD700'
+    };
+
+                const wepSlots = smCard.querySelectorAll('.wep-slot');
+                wepSlots.forEach((slot, idx) => {
+                    const assignedWepName = preferredWeapons[idx % preferredWeapons.length
+      ];
+                    slot.dataset.selectedId = assignedWepName;
+                    slot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${assignedWepName.substring(0,
+        2).toUpperCase()
+      }</div>`;
+    });
+
+                updateTimelineHeader(activeVersionNum, smIndex, color, name);
+  }
+}
+        closeSelectionPanel(activeVersionNum);
+}
+
+    function selectMockSacred(id, name, color) {
+        if (activeTargetSlot) {
+            activeTargetSlot.dataset.selectedId = id;
+            activeTargetSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0,
+    2).toUpperCase()
+  }</div>`;
+            
+            const sacCard = activeTargetSlot.closest('.sac-card');
+            if (sacCard) {
+                const sacIndex = Array.from(sacCard.parentNode.children).indexOf(sacCard);
+                selectedSacreds[activeVersionNum
+    ][sacIndex
+    ] = { id, name, color
+    };
+  }
+}
+        closeSelectionPanel(activeVersionNum);
+}
+
+    function selectMockWeapon(id, name, color) {
+        if (activeTargetSlot) {
+            activeTargetSlot.dataset.selectedId = id;
+            activeTargetSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0,
+    2).toUpperCase()
+  }</div>`;
+            
+            const smCard = activeTargetSlot.closest('.sm-card');
+            if (smCard) {
+                const smIndex = parseInt(smCard.getAttribute('data-index'));
+                const wepSlots = Array.from(smCard.querySelectorAll('.wep-slot'));
+                const slotIndex = wepSlots.indexOf(activeTargetSlot);
+                
+                if (slotIndex !== -1 && characterLoadouts[activeVersionNum
+    ][smIndex
+    ]) {
+                    characterLoadouts[activeVersionNum
+      ][smIndex
+      ].weapons[slotIndex
+      ] = { name: name, color: color
+      };
+    }
+  }
+}
+        closeSelectionPanel(activeVersionNum);
+}
+
+    function updateTimelineHeader(versionNum, smIndex, color, name) {
+        const timelineContainerId = versionNum === 2 ? 'timelineContainer2' : 'timelineContainer1';
+        const headerIcon = document.querySelector(`#${timelineContainerId
+} [data-sm-col="${smIndex}"
+]`);
+        if (headerIcon) {
+            headerIcon.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0,
+    2).toUpperCase()
+  }</div>`;
+}
+}
+
+    const actionPopup = document.getElementById('actionPopup');
+
+    function openActionMenu(slotElement, colIndex, versionNum) {
+        currentActionSlot = slotElement;
+        activeVersionNum = versionNum;
+        
+        let optionsHTML = '';
+
+        if (colIndex === 'sacred') {
+            optionsHTML = '';
+            const sacredsMap = selectedSacreds[versionNum
+  ];
+            Object.keys(sacredsMap).forEach(key => {
+                const sac = sacredsMap[key
+    ];
+                if (sac) {
+                    optionsHTML += `
+                        <div class="action-popup-item" onclick="applyActionChoice('${sac.color}', '${sac.name.substring(0,2).toUpperCase()}')" title="${sac.name}">
+                            <div class="token-icon" style="background-color: ${sac.color};">${sac.name.substring(0,
+        2).toUpperCase()
+      }</div>
+                        </div>
+                    `;
+    }
+  });
+            if (!optionsHTML) {
+                optionsHTML = `<div style="padding: 6px 10px; font-size:11px; color:#aaa;">No Sacreds Equipped</div>`;
+  }
+} else {
+            const loadout = characterLoadouts[versionNum
+  ][colIndex
+  ];
+
+            if (loadout) {
+                optionsHTML = `
+                    <div class="action-popup-item" onclick="applyActionChoice('#333333', 'B')" title="Basic Attack"><div class="token-icon" style="background-color: #333333;">B</div></div>
+                    <div class="action-popup-item" onclick="applyActionChoice('${loadout.weapons[0].color}', '${loadout.weapons[0].name.substring(0,2).toUpperCase()}')" title="${loadout.weapons[0].name}"><div class="token-icon" style="background-color: ${loadout.weapons[0].color};">${loadout.weapons[
+        0
+      ].name.substring(0,
+      2).toUpperCase()
+    }</div></div>
+                    <div class="action-popup-item" onclick="applyActionChoice('${loadout.weapons[1].color}', '${loadout.weapons[1].name.substring(0,2).toUpperCase()}')" title="${loadout.weapons[1].name}"><div class="token-icon" style="background-color: ${loadout.weapons[1].color};">${loadout.weapons[
+        1
+      ].name.substring(0,
+      2).toUpperCase()
+    }</div></div>
+                    <div class="action-popup-item" onclick="applyActionChoice('${loadout.weapons[2].color}', '${loadout.weapons[2].name.substring(0,2).toUpperCase()}')" title="${loadout.weapons[2].name}"><div class="token-icon" style="background-color: ${loadout.weapons[2].color};">${loadout.weapons[
+        2
+      ].name.substring(0,
+      2).toUpperCase()
+    }</div></div>
+                    <div class="action-popup-item" onclick="applyActionChoice('${loadout.personal}', 'P')" title="Personal Weapon"><div class="token-icon" style="background-color: ${loadout.personal};">P</div></div>
+                    <div class="action-popup-item" onclick="applyActionChoice('${loadout.ultimate}', 'U')" title="Ultimate"><div class="token-icon" style="background-color: ${loadout.ultimate};">U</div></div>
+                `;
+  } else {
+                optionsHTML = `<div style="padding: 6px 10px; font-size:11px; color:#aaa;">Assign character first</div>`;
+  }
+}
+
+        actionPopup.innerHTML = optionsHTML;
+
+        const rect = slotElement.getBoundingClientRect();
+        actionPopup.style.top = `${rect.bottom + window.scrollY + 2
+}px`;
+        actionPopup.style.left = `${rect.left + window.scrollX
+}px`;
+        actionPopup.style.display = 'flex';
+
+        event.stopPropagation();
+}
+
+    function applyActionChoice(color, label) {
+        if (currentActionSlot) {
+            currentActionSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${label
+  }</div>`;
+}
+        closeActionMenu();
+}
+
+    function closeActionMenu() {
+        actionPopup.style.display = 'none';
+        currentActionSlot = null;
+}
+
+    window.addEventListener('click', () => {
+        closeActionMenu();
+});
+
+    function addTurnActive() {
+        addTurn(activeVersionNum);
+}
+
+    function addTurn(versionNum) {
+        if (versionNum === 1) {
+            const grid = document.getElementById('t1GridContainer');
+            const turnNum = grid.querySelectorAll('.turn-num').length + 1;
+            
+            grid.insertAdjacentHTML('beforeend', `
+                <div class="t-cell turn-num">${turnNum
+  }</div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 'sacred', 1)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 0, 1)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 1, 1)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 2, 1)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 3, 1)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 4, 1)"></div></div>
+                <div class="t-cell"><div class="drop-zone"></div></div>
+                <div class="t-cell"><div class="drop-zone"></div></div>
+                <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
+            `);
+} else {
+            const grid = document.getElementById('t2GridContainer');
+            const turnNum = grid.querySelectorAll('.turn-num').length + 1;
+            
+            grid.insertAdjacentHTML('beforeend', `
+                <div class="t-cell turn-num">${turnNum
+  }</div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 'sacred', 2)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 0, 2)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 1, 2)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 2, 2)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 3, 2)"></div></div>
+                <div class="t-cell"><div class="action-slot" onclick="openActionMenu(this, 4, 2)"></div></div>
+                <div class="t-cell"><button class="btn-delete-row" onclick="deleteRow(this)">✕</button></div>
+            `);
+}
+}
+
+    function deleteRow(btn) {
+        const grid = btn.closest('.t1-grid, .t2-grid');
+        const isVersion1 = grid.id === 't1GridContainer';
+        const cols = isVersion1 ? 10 : 8;
+        
+        const cells = Array.from(grid.children);
+        const headerCount = cols;
+        const clickedCell = btn.closest('.t-cell');
+        const clickedIndex = cells.indexOf(clickedCell);
+        
+        if (clickedIndex >= headerCount) {
+            const rowIndex = Math.floor((clickedIndex - headerCount) / cols);
+            const startIndex = headerCount + (rowIndex * cols);
+            
+            for (let i = 0; i < cols; i++) {
+                if (grid.children[startIndex
+    ]) {
+                    grid.children[startIndex
+      ].remove();
+    }
+  }
+            reindexTurns(grid, cols, headerCount);
+}
+}
+
+    function reindexTurns(grid, cols, headerCount) {
+        const children = grid.children;
+        let turnCounter = 1;
+        for (let i = headerCount; i < children.length; i += cols) {
+            children[i
+  ].innerText = turnCounter;
+            turnCounter++;
+}
+}
+
+    function openSaveModal() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        const defaultName = `fightplan-${year
+}-${month
+}-${day
+}-${hours
+}${minutes
+}`;
+        
+        document.getElementById('filenameInput').value = defaultName;
+        document.getElementById('saveModal').style.display = 'flex';
+        document.getElementById('filenameInput').focus();
+}
+
+    function closeSaveModal() {
+        document.getElementById('saveModal').style.display = 'none';
+}
+
+    function confirmSavePlan() {
+        let filename = document.getElementById('filenameInput').value.trim();
+        if (!filename) filename = "fightplan";
+        if (!filename.endsWith('.json')) filename += '.json';
+
+        const gridId = activeVersionNum === 2 ? 't2GridContainer' : 't1GridContainer';
+        const grid = document.getElementById(gridId);
+        const rosterId = activeVersionNum === 2 ? 'rosterCol2' : 'rosterCol1';
+        const rosterCol = document.getElementById(rosterId);
+        const sacId = activeVersionNum === 2 ? 'sacCol2' : null;
+        const sacCol = sacId ? document.getElementById(sacId) : null;
+        
+        const planData = {
+            version: activeVersionNum,
+            timelineHTML: grid.innerHTML,
+            rosterHTML: rosterCol.innerHTML,
+            sacredHTML: sacCol ? sacCol.innerHTML : null,
+            loadouts: characterLoadouts[activeVersionNum
+  ],
+            sacreds: selectedSacreds[activeVersionNum
+  ]
+};
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(planData,
+null,
+2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", filename);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+
+        closeSaveModal();
+}
+
+    function loadPlanJSON(event) {
+        const file = event.target.files[
+  0
+];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const planData = JSON.parse(e.target.result);
+                
+                if (planData.version === 2 && uiToggle.checked) {
+                    uiToggle.checked = false;
+                    switchUI();
+    } else if (planData.version === 1 && !uiToggle.checked) {
+                    uiToggle.checked = true;
+                    switchUI();
+    }
+
+                const gridId = planData.version === 2 ? 't2GridContainer' : 't1GridContainer';
+                const rosterId = planData.version === 2 ? 'rosterCol2' : 'rosterCol1';
+                const sacId = planData.version === 2 ? 'sacCol2' : null;
+                
+                document.getElementById(gridId).innerHTML = planData.timelineHTML;
+                document.getElementById(rosterId).innerHTML = planData.rosterHTML;
+                if (sacId && planData.sacredHTML) {
+                    document.getElementById(sacId).innerHTML = planData.sacredHTML;
+    }
+
+                characterLoadouts[planData.version
+    ] = planData.loadouts || {};
+                selectedSacreds[planData.version
+    ] = planData.sacreds || {};
+
+                alert("Battle plan loaded successfully from file!");
+  } catch (err) {
+                alert("Invalid JSON battle plan file!");
+  }
+};
+        reader.readAsText(file);
+        event.target.value = '';
+}
+</script>
+
+</body>
+</html>
