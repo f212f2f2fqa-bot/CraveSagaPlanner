@@ -1625,6 +1625,18 @@
                     <button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>
                 `;
 
+                // Make the teamsheet slot draggable to the fight timeline
+                const dragData = JSON.stringify({
+                    id: id,
+                    name: name,
+                    color: color,
+                    element: element,
+                    iconFile: iconFile || '',
+                    selectionType: 'sacred'
+                }).replace(/"/g, '&quot;');
+                activeTargetSlot.setAttribute('draggable', 'true');
+                activeTargetSlot.setAttribute('ondragstart', `event.dataTransfer.setData('text/plain', '${dragData}'); event.dataTransfer.effectAllowed = 'copy';`);
+
                 const sacCard = activeTargetSlot.closest('.sac-card');
                 if (sacCard) {
                     const sacIndex = Array.from(sacCard.parentNode.children).indexOf(sacCard);
@@ -1705,6 +1717,8 @@
                     delete selectedSacreds[versionNum][sacIndex];
                 }
                 slot.innerHTML = 'Sac';
+                slot.removeAttribute('draggable');
+                slot.removeAttribute('ondragstart');
             }
 
             populateMockDatabase(versionNum);
@@ -1713,32 +1727,32 @@
         function handleImageError(img, name, element, folder) {
             if (!img.dataset.tryCount) {
                 img.dataset.tryCount = 1;
-                // Try 1: Exact capitalized name casing with underscores
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_');
+                // Try 1: Exact capitalized name casing with underscores (spaces and dashes)
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_');
                 img.src = `Icons/${folder}/${cleanName}.png`;
             } else if (img.dataset.tryCount == 1) {
                 img.dataset.tryCount = 2;
                 // Try 2: Element prefix + exact name casing
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_');
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_');
                 img.src = `Icons/${folder}/${element}_${cleanName}.png`;
             } else if (img.dataset.tryCount == 2) {
                 img.dataset.tryCount = 3;
                 // Try 3: Fully lowercase name
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_').toLowerCase();
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_').toLowerCase();
                 img.src = `Icons/${folder}/${cleanName}.png`;
             } else if (img.dataset.tryCount == 3) {
                 img.dataset.tryCount = 4;
                 // Try 4: Element prefix + lowercase name
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/ /g, '_').toLowerCase();
+                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_').toLowerCase();
                 img.src = `Icons/${folder}/${element}_${cleanName}.png`;
             } else {
                 // All failed - replace with text token
                 const parent = img.parentNode;
                 if (parent) {
                     const color = getElementColor(element);
-                    const isSlot = parent.classList.contains('slot') || parent.parentNode.classList.contains('slot');
+                    const isSlot = parent.classList.contains('slot') || parent.parentNode.classList.contains('slot') || parent.classList.contains('action-slot');
                     parent.innerHTML = `<div class="token-icon" style="background-color: ${color};">${name.substring(0, 2).toUpperCase()}</div>`;
-                    if (isSlot) {
+                    if (isSlot && !parent.classList.contains('action-slot')) {
                         parent.innerHTML += `<button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>`;
                     }
                 }
@@ -1771,7 +1785,7 @@
                     const sac = sacredsMap[key];
                     if (sac) {
                         optionsHTML += `
-                        <div class="action-popup-item" onclick="applyActionChoice('${sac.color}', '${sac.name.substring(0, 2).toUpperCase()}')" title="${sac.name}">
+                        <div class="action-popup-item" onclick="applyActionChoice('${sac.color}', '${sac.name.replace(/'/g, "\\'")}', '${sac.iconFile || ''}', '${sac.element}', 'Sacreds')" title="${sac.name}">
                             <div class="token-icon" style="background-color: ${sac.color};">${sac.name.substring(0, 2).toUpperCase()}</div>
                         </div>
                     `;
@@ -1807,9 +1821,12 @@
             event.stopPropagation();
         }
 
-        function applyActionChoice(color, label) {
+        function applyActionChoice(color, label, iconFile, element, folder) {
             if (currentActionSlot) {
-                currentActionSlot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${label}</div>`;
+                const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/${folder}/${iconFile}` : '';
+                currentActionSlot.innerHTML = iconPath 
+                    ? `<img src="${iconPath}" alt="${label}" onerror="handleImageError(this, '${label.replace(/'/g, "\\'")}', '${element || color}', '${folder}')" style="width:100%; height:100%; object-fit:cover; border-radius:2px;" title="${label}">`
+                    : `<div class="token-icon" style="background-color: ${color};" title="${label}">${label.substring(0, 2).toUpperCase()}</div>`;
             }
             closeActionMenu();
         }
@@ -1985,7 +2002,7 @@
 
         // Event delegation for drag & drop onto slots
         document.body.addEventListener('dragover', (e) => {
-            const slot = e.target.closest('.slot');
+            const slot = e.target.closest('.slot') || e.target.closest('.action-slot');
             if (slot) {
                 e.preventDefault();
                 slot.classList.add('drag-over-active');
@@ -1993,14 +2010,14 @@
         });
 
         document.body.addEventListener('dragleave', (e) => {
-            const slot = e.target.closest('.slot');
+            const slot = e.target.closest('.slot') || e.target.closest('.action-slot');
             if (slot) {
                 slot.classList.remove('drag-over-active');
             }
         });
 
         document.body.addEventListener('drop', (e) => {
-            const slot = e.target.closest('.slot');
+            const slot = e.target.closest('.slot') || e.target.closest('.action-slot');
             if (slot) {
                 e.preventDefault();
                 slot.classList.remove('drag-over-active');
@@ -2009,6 +2026,20 @@
                     const dragData = e.dataTransfer.getData('text/plain');
                     if (!dragData) return;
                     const data = JSON.parse(dragData);
+                    
+                    // Check if dropping onto a timeline cell (action-slot)
+                    if (slot.classList.contains('action-slot')) {
+                        const onClickAttr = slot.getAttribute('onclick') || '';
+                        const isSacredActionSlot = onClickAttr.includes("'sacred'");
+                        
+                        if (isSacredActionSlot && data.selectionType === 'sacred') {
+                            const iconPath = data.iconFile && data.iconFile !== 'N/A' ? `Icons/Sacreds/${data.iconFile}` : '';
+                            slot.innerHTML = iconPath 
+                                ? `<img src="${iconPath}" alt="${data.name}" onerror="handleImageError(this, '${data.name.replace(/'/g, "\\'")}', '${data.element}', 'Sacreds')" style="width:100%; height:100%; object-fit:cover; border-radius:2px;" title="${data.name}">`
+                                : `<div class="token-icon" style="background-color: ${data.color};" title="${data.name}">${data.name.substring(0, 2).toUpperCase()}</div>`;
+                        }
+                        return;
+                    }
                     
                     // Determine slot type
                     let slotType = '';
