@@ -1197,6 +1197,11 @@
                     <div class="filter-section">
                         <div class="filter-row search-row"><input type="text" class="search-input" id="searchInput2"
                                 oninput="filterDatabase(2)" placeholder="Search..."></div>
+                        <div id="imageDebugLog2" style="margin: 5px 10px; padding: 10px; background: #263238; border: 1px dashed #e53935; border-radius: 4px; font-size: 11px; display: none; text-align: left; color: #fff; max-height: 120px; overflow-y: auto;">
+                            <strong style="color: #ff8a80;">⚠️ Diagnostic: Failed Images (404 on GitHub Pages)</strong>
+                            <div style="color: #ccc; margin: 4px 0 6px 0; font-size: 10px; line-height: 1.3;">If these images exist on your computer, they might be untracked. Try running: <br><code style="background:#1e282c; padding:2px 4px; border-radius:2px; color:#ffb74d;">git add Icons/Sacreds</code> and push again!</div>
+                            <ul id="failedImageList2" style="margin: 0 0 0 15px; padding: 0;"></ul>
+                        </div>
                         <div class="filter-row" id="elementFilterRow2">
                             <span style="font-size: 11px; color: #888; width: 55px;">Element:</span>
                             <div class="filter-group">
@@ -1756,6 +1761,22 @@
                 // Try 9: Element prefix + lowercase + .PNG
                 img.src = `Icons/${folder}/${element}_${cleanNameLower}.PNG`;
             } else {
+                // Log the final failure for diagnostics
+                const finalFailedUrl = img.src;
+                if (typeof window.failedImages === 'undefined') {
+                    window.failedImages = new Set();
+                }
+                if (!window.failedImages.has(finalFailedUrl)) {
+                    window.failedImages.add(finalFailedUrl);
+                    const logContainer = document.getElementById('imageDebugLog2');
+                    const listContainer = document.getElementById('failedImageList2');
+                    if (logContainer && listContainer) {
+                        logContainer.style.display = 'block';
+                        const filePart = finalFailedUrl.substring(finalFailedUrl.lastIndexOf('/') + 1);
+                        listContainer.innerHTML += `<li style="color: #ff8a80; list-style-type: disc; margin-bottom: 2px;">Missing file: <span style="font-family: monospace; color:#fff;">${filePart}</span> (tried path: <span style="color:#aaa;">Icons/${folder}/...</span>)</li>`;
+                    }
+                }
+
                 // All failed - replace with text token
                 const parent = img.parentNode;
                 if (parent) {
