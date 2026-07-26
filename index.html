@@ -14,7 +14,6 @@
     <div class="sidebar">
         <h1>Raid Tool</h1>
         <div class="sidebar-actions">
-            <button class="btn-action" onclick="addTurnActive()">+ Add Turn</button>
             <button class="btn-action" onclick="openSaveModal()">Save JSON</button>
             <button class="btn-action" onclick="document.getElementById('fileInput').click()">Load JSON</button>
             <input type="file" id="fileInput" style="display: none;" accept=".json" onchange="loadPlanJSON(event)">
@@ -193,7 +192,9 @@
                             </div>
                             <div class="t-header">Buffs</div>
                             <div class="t-header">Debuffs</div>
-                            <div class="t-header"></div>
+                            <div class="t-header">
+                                <button class="btn" style="padding: 2px 6px; font-size: 11px;" onclick="addTurn(1)">+ Turn</button>
+                            </div>
 
                             <div class="t-cell turn-num">1</div>
                             <div class="t-cell">
@@ -381,7 +382,9 @@
                             <div class="t-header">
                                 <div class="header-icon-slot" data-sm-col="4">SM5</div>
                             </div>
-                            <div class="t-header"></div>
+                            <div class="t-header">
+                                <button class="btn" style="padding: 2px 6px; font-size: 11px;" onclick="addTurn(2)">+ Turn</button>
+                            </div>
 
                             <div class="t-cell turn-num">1</div>
                             <div class="t-cell">
