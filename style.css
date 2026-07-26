@@ -604,7 +604,7 @@ input:checked+.slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 56px;
+    height: 60px;
     box-sizing: border-box;
 }
 
@@ -650,7 +650,7 @@ input:checked+.slider:before {
 }
 
 .v2-timeline .t-cell {
-    height: 56px;
+    height: 60px;
     padding: 4px;
     border-bottom: 1px solid #222;
     border-right: 1px solid #222;
