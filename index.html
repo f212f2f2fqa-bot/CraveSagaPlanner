@@ -1448,7 +1448,7 @@
                     if (matchesSearch && matchesElement) {
                         const isDisabled = assignedIds.includes(sac.id);
                         const elColor = getElementColor(sac.element);
-                        const iconPath = sac.iconFile && sac.iconFile !== 'N/A' ? `Icons/Sacreds/${sac.iconFile}` : '';
+                        const iconPath = sac.iconFile && sac.iconFile !== 'N/A' ? `Icons/sacreds/${sac.iconFile}` : '';
                         const dragData = JSON.stringify({
                             id: sac.id,
                             name: sac.name,
@@ -1614,7 +1614,7 @@
         function selectMockSacred(id, name, color, iconFile) {
             if (activeTargetSlot) {
                 activeTargetSlot.dataset.selectedId = id;
-                const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/Sacreds/${iconFile}` : '';
+                const iconPath = iconFile && iconFile !== 'N/A' ? `Icons/sacreds/${iconFile}` : '';
                 activeTargetSlot.innerHTML = `
                     ${iconPath 
                         ? `<img src="${iconPath}" alt="${name}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`
@@ -1997,7 +1997,7 @@
                         } else if (slotType === 'weapon') {
                             selectMockWeapon(data.id, data.name, data.color);
                         } else if (slotType === 'sacred') {
-                            selectMockSacred(data.id, data.name, data.color);
+                            selectMockSacred(data.id, data.name, data.color, data.iconFile);
                         }
                     }
                 } catch (err) {
