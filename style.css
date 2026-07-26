@@ -162,7 +162,7 @@ input:checked+.slider:before {
 /* --- VERSION 1 GRID (With Buffs) --- */
 .workspace-v1 {
     display: grid;
-    grid-template-columns: 240px 90px 1fr;
+    grid-template-columns: 260px 88px 1fr;
     grid-template-rows: max-content 1fr;
     gap: 8px;
     padding: 8px;
@@ -201,7 +201,7 @@ input:checked+.slider:before {
 /* --- VERSION 2 GRID (Without Buffs) --- */
 .workspace-v2 {
     display: grid;
-    grid-template-columns: 280px 100px 1fr;
+    grid-template-columns: 300px 100px 1fr;
     grid-template-rows: 1fr;
     gap: 8px;
     padding: 8px;
@@ -287,18 +287,18 @@ input:checked+.slider:before {
 }
 
 .sm-card {
-    gap: 6px;
-    height: 44px;
+    gap: 10px;
+    height: 64px;
 }
 
 .sac-card {
     justify-content: center;
-    height: 44px;
+    height: 64px;
 }
 
 .v2-sm .sm-card,
 .v2-sac .sac-card {
-    height: 52px;
+    height: 76px;
 }
 
 .slot {
@@ -323,51 +323,51 @@ input:checked+.slider:before {
 }
 
 .v1-sm .portrait {
-    width: 40px;
-    height: 40px;
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
 }
 
 .v1-sac .sac-portrait {
-    width: 40px;
-    height: 40px;
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
 }
 
 .v1-sm .wep-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(3, 44px);
+    gap: 5px;
     flex-grow: 1;
 }
 
 .v1-sm .wep-slot {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
 }
 
 .v2-sm .portrait {
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
     flex-shrink: 0;
 }
 
 .v2-sac .sac-portrait {
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
     flex-shrink: 0;
 }
 
 .v2-sm .wep-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(3, 56px);
+    gap: 6px;
     flex-grow: 1;
 }
 
 .v2-sm .wep-slot {
-    width: 38px;
-    height: 38px;
+    width: 56px;
+    height: 56px;
 }
 
 /* Buffs Menu Specifics */
