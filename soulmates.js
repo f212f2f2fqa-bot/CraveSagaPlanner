@@ -129,7 +129,7 @@ const mockSoulmates =[
       "sword",
       "armor"
     ],
-    "iconFile": "N/A"
+    "iconFile": "primordial_god_kings_crest.png"
   },
   {
     "id": "c13",
@@ -239,7 +239,7 @@ const mockSoulmates =[
       "sword",
       "armor"
     ],
-    "iconFile": "N/A"
+    "iconFile": "thustra.png"
   },
   {
     "id": "c23",
@@ -338,7 +338,7 @@ const mockSoulmates =[
       "spear",
       "armor"
     ],
-    "iconFile": "N/A"
+    "iconFile": "water_phys_brioniac.png"
   },
   {
     "id": "c32",
@@ -492,7 +492,7 @@ const mockSoulmates =[
       "special blade",
       "bow"
     ],
-    "iconFile": "N/A"
+    "iconFile": "dequon.png"
   },
   {
     "id": "c46",
@@ -536,7 +536,7 @@ const mockSoulmates =[
       "magic tool",
       "bow"
     ],
-    "iconFile": "N/A"
+    "iconFile": "light_bong.png"
   },
   {
     "id": "c50",
@@ -2648,7 +2648,7 @@ const mockSoulmates =[
       "gun",
       "magic tool"
     ],
-    "iconFile": "N/A"
+    "iconFile": "bong.png"
   },
   {
     "id": "c242",
