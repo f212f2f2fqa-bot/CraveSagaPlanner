@@ -1540,17 +1540,16 @@
                         // Keep currently equipped weapons
                         weaponsToSave = characterLoadouts[activeVersionNum][smIndex].weapons;
                     } else {
-                        // Populate with default preferred weapons
+                        // Keep them blank
                         weaponsToSave = [
-                            { name: preferredWeapons[0], color: color }, 
-                            { name: preferredWeapons[1], color: color }, 
-                            { name: 'Universal', color: color }
+                            { name: '', color: '' }, 
+                            { name: '', color: '' }, 
+                            { name: '', color: '' }
                         ];
-                        // Update visual display of weapon slots
+                        // Ensure visual display of weapon slots stays blank (W1, W2, W3)
                         wepSlots.forEach((slot, idx) => {
-                            const assignedWepName = preferredWeapons[idx % preferredWeapons.length];
-                            slot.dataset.selectedId = assignedWepName;
-                            slot.innerHTML = `<div class="token-icon" style="background-color: ${color};">${assignedWepName.substring(0, 2).toUpperCase()}</div>`;
+                            delete slot.dataset.selectedId;
+                            slot.innerHTML = `W${idx + 1}`;
                         });
                     }
 
