@@ -1711,26 +1711,50 @@
         }
 
         function handleImageError(img, name, element, folder) {
+            const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_');
+            const cleanNameLower = cleanName.toLowerCase();
+            
             if (!img.dataset.tryCount) {
                 img.dataset.tryCount = 1;
-                // Try 1: Exact capitalized name casing with underscores (spaces and dashes)
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_');
+                // Try 1: Capitalized name casing + .png
                 img.src = `Icons/${folder}/${cleanName}.png`;
             } else if (img.dataset.tryCount == 1) {
                 img.dataset.tryCount = 2;
-                // Try 2: Element prefix + exact name casing
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_');
+                // Try 2: Element prefix + capitalized + .png
                 img.src = `Icons/${folder}/${element}_${cleanName}.png`;
             } else if (img.dataset.tryCount == 2) {
                 img.dataset.tryCount = 3;
-                // Try 3: Fully lowercase name
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_').toLowerCase();
-                img.src = `Icons/${folder}/${cleanName}.png`;
+                // Try 3: Lowercase + .png
+                img.src = `Icons/${folder}/${cleanNameLower}.png`;
             } else if (img.dataset.tryCount == 3) {
                 img.dataset.tryCount = 4;
-                // Try 4: Element prefix + lowercase name
-                const cleanName = name.replace(/\(.*?\)/g, '').trim().replace(/[\s-]/g, '_').toLowerCase();
-                img.src = `Icons/${folder}/${element}_${cleanName}.png`;
+                // Try 4: Element prefix + lowercase + .png
+                img.src = `Icons/${folder}/${element}_${cleanNameLower}.png`;
+            } else if (img.dataset.tryCount == 4) {
+                img.dataset.tryCount = 5;
+                // Try 5: Original mapped file with uppercase .PNG
+                const origFile = img.src.substring(img.src.lastIndexOf('/') + 1);
+                if (origFile.toLowerCase().endsWith('.png')) {
+                    img.src = `Icons/${folder}/${origFile.substring(0, origFile.length - 4)}.PNG`;
+                } else {
+                    img.src = `Icons/${folder}/${cleanName}.PNG`;
+                }
+            } else if (img.dataset.tryCount == 5) {
+                img.dataset.tryCount = 6;
+                // Try 6: Capitalized + .PNG
+                img.src = `Icons/${folder}/${cleanName}.PNG`;
+            } else if (img.dataset.tryCount == 6) {
+                img.dataset.tryCount = 7;
+                // Try 7: Element prefix + capitalized + .PNG
+                img.src = `Icons/${folder}/${element}_${cleanName}.PNG`;
+            } else if (img.dataset.tryCount == 7) {
+                img.dataset.tryCount = 8;
+                // Try 8: Lowercase + .PNG
+                img.src = `Icons/${folder}/${cleanNameLower}.PNG`;
+            } else if (img.dataset.tryCount == 8) {
+                img.dataset.tryCount = 9;
+                // Try 9: Element prefix + lowercase + .PNG
+                img.src = `Icons/${folder}/${element}_${cleanNameLower}.PNG`;
             } else {
                 // All failed - replace with text token
                 const parent = img.parentNode;
