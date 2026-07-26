@@ -548,9 +548,6 @@ window.addEventListener('click', () => {
     closeActionMenu();
 });
 
-function addTurnActive() {
-    addTurn(activeVersionNum);
-}
 
 function addTurn(versionNum) {
     if (versionNum === 1) {
