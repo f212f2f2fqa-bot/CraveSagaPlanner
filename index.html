@@ -1172,19 +1172,19 @@
                     <div class="panel-header">Sacreds</div>
                     <div class="roster-col" id="sacCol2">
                         <div class="sac-card" data-sac-index="0">
-                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                            <div class="slot sac-portrait" draggable="true" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
                         </div>
                         <div class="sac-card" data-sac-index="1">
-                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                            <div class="slot sac-portrait" draggable="true" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
                         </div>
                         <div class="sac-card" data-sac-index="2">
-                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                            <div class="slot sac-portrait" draggable="true" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
                         </div>
                         <div class="sac-card" data-sac-index="3">
-                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                            <div class="slot sac-portrait" draggable="true" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
                         </div>
                         <div class="sac-card" data-sac-index="4">
-                            <div class="slot sac-portrait" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
+                            <div class="slot sac-portrait" draggable="true" onclick="openSelectionPanel('sacred', 2, this)">Sac</div>
                         </div>
                     </div>
                 </div>
@@ -1625,18 +1625,6 @@
                     <button class="btn-clear-slot" onclick="clearSlot(event, this)">✕</button>
                 `;
 
-                // Make the teamsheet slot draggable to the fight timeline
-                const dragData = JSON.stringify({
-                    id: id,
-                    name: name,
-                    color: color,
-                    element: element,
-                    iconFile: iconFile || '',
-                    selectionType: 'sacred'
-                }).replace(/"/g, '&quot;');
-                activeTargetSlot.setAttribute('draggable', 'true');
-                activeTargetSlot.setAttribute('ondragstart', `event.dataTransfer.setData('text/plain', '${dragData}'); event.dataTransfer.effectAllowed = 'copy';`);
-
                 const sacCard = activeTargetSlot.closest('.sac-card');
                 if (sacCard) {
                     const sacIndex = Array.from(sacCard.parentNode.children).indexOf(sacCard);
@@ -1717,8 +1705,6 @@
                     delete selectedSacreds[versionNum][sacIndex];
                 }
                 slot.innerHTML = 'Sac';
-                slot.removeAttribute('draggable');
-                slot.removeAttribute('ondragstart');
             }
 
             populateMockDatabase(versionNum);
@@ -1999,6 +1985,33 @@
             reader.readAsText(file);
             event.target.value = '';
         }
+
+        // Handle dragging from teamsheet slots to fight timeline
+        document.body.addEventListener('dragstart', (e) => {
+            const slot = e.target.closest('.slot');
+            if (slot && slot.classList.contains('sac-portrait') && slot.dataset.selectedId) {
+                let versionNum = 2;
+                if (slot.closest('#version1')) versionNum = 1;
+                
+                const sacCard = slot.closest('.sac-card');
+                if (sacCard) {
+                    const sacIndex = Array.from(sacCard.parentNode.children).indexOf(sacCard);
+                    const sac = selectedSacreds[versionNum][sacIndex];
+                    if (sac) {
+                        const dragData = JSON.stringify({
+                            id: sac.id,
+                            name: sac.name,
+                            color: sac.color,
+                            element: sac.element,
+                            iconFile: sac.iconFile || '',
+                            selectionType: 'sacred'
+                        });
+                        e.dataTransfer.setData('text/plain', dragData);
+                        e.dataTransfer.effectAllowed = 'copy';
+                    }
+                }
+            }
+        });
 
         // Event delegation for drag & drop onto slots
         document.body.addEventListener('dragover', (e) => {
