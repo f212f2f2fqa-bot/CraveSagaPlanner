@@ -1720,6 +1720,7 @@
             const cleanNameLower = cleanName.toLowerCase();
             
             if (!img.dataset.tryCount) {
+                img.dataset.originalSrc = img.src;
                 img.dataset.tryCount = 1;
                 // Try 1: Capitalized name casing + .png
                 img.src = `Icons/${folder}/${cleanName}.png`;
@@ -1762,17 +1763,17 @@
                 img.src = `Icons/${folder}/${element}_${cleanNameLower}.PNG`;
             } else {
                 // Log the final failure for diagnostics
-                const finalFailedUrl = img.src;
+                const originalFailedUrl = img.dataset.originalSrc || img.src;
                 if (typeof window.failedImages === 'undefined') {
                     window.failedImages = new Set();
                 }
-                if (!window.failedImages.has(finalFailedUrl)) {
-                    window.failedImages.add(finalFailedUrl);
+                if (!window.failedImages.has(originalFailedUrl)) {
+                    window.failedImages.add(originalFailedUrl);
                     const logContainer = document.getElementById('imageDebugLog2');
                     const listContainer = document.getElementById('failedImageList2');
                     if (logContainer && listContainer) {
                         logContainer.style.display = 'block';
-                        const filePart = finalFailedUrl.substring(finalFailedUrl.lastIndexOf('/') + 1);
+                        const filePart = originalFailedUrl.substring(originalFailedUrl.lastIndexOf('/') + 1);
                         listContainer.innerHTML += `<li style="color: #ff8a80; list-style-type: disc; margin-bottom: 2px;">Missing file: <span style="font-family: monospace; color:#fff;">${filePart}</span> (tried path: <span style="color:#aaa;">Icons/${folder}/...</span>)</li>`;
                     }
                 }
